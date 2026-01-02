@@ -212,20 +212,24 @@ EOD;
 
         $result = $c->download_one($url, null, ['filepath' => $path, 'timeout' => $CFG->repositorygetfiletimeout]);
 
-        // Check for errors.
+        // Always check HTTP status code, even if curl reports success.
+        // When downloading to a file, curl may return true even for HTTP errors
+        // because it successfully wrote the error response to the file.
+        $info = $c->get_info();
+        if (isset($info['http_code']) && $info['http_code'] === 429) {
+            // Clean up the error response file.
+            if (file_exists($path)) {
+                unlink($path);
+            }
+            throw new repository_exception('ratelimited', 'repository_wikimedia');
+        }
+
+        // Check for other errors.
         if ($result !== true) {
             // Clean up partial file if it exists.
             if (file_exists($path)) {
                 unlink($path);
             }
-
-            // Check if this is a rate limiting error.
-            $info = $c->get_info();
-            if (isset($info['http_code']) && $info['http_code'] === 429) {
-                throw new repository_exception('ratelimited', 'repository_wikimedia');
-            }
-
-            // Other error - throw standard download error.
             throw new moodle_exception('errorwhiledownload', 'repository', '', $result);
         }
 
