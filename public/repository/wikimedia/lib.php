@@ -191,6 +191,48 @@ EOD;
     }
 
     /**
+     * Downloads a file from external repository and saves it in temp dir
+     *
+     * Overrides the base implementation to handle HTTP 429 rate limiting errors
+     * from Wikimedia servers with a user-friendly error message.
+     *
+     * @param string $url the URL of file to download
+     * @param string $filename filename (without path) to save the downloaded file in the
+     *     temporary directory, if omitted or file already exists the new filename will be generated
+     * @return array with elements:
+     *   path: internal location of the file
+     *   url: URL to the source (from parameters)
+     * @throws moodle_exception if download fails
+     */
+    public function get_file($url, $filename = '') {
+        global $CFG;
+
+        $path = $this->prepare_file($filename);
+        $c = new curl();
+
+        $result = $c->download_one($url, null, ['filepath' => $path, 'timeout' => $CFG->repositorygetfiletimeout]);
+
+        // Check for errors.
+        if ($result !== true) {
+            // Clean up partial file if it exists.
+            if (file_exists($path)) {
+                unlink($path);
+            }
+
+            // Check if this is a rate limiting error.
+            $info = $c->get_info();
+            if (isset($info['http_code']) && $info['http_code'] === 429) {
+                throw new repository_exception('ratelimited', 'repository_wikimedia');
+            }
+
+            // Other error - throw standard download error.
+            throw new moodle_exception('errorwhiledownload', 'repository', '', $result);
+        }
+
+        return ['path' => $path, 'url' => $url];
+    }
+
+    /**
      * Is this repository accessing private data?
      *
      * @return bool
