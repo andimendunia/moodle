@@ -141,24 +141,25 @@ if ($hassiteconfig or has_any_capability($capabilities, $systemcontext)) { // sp
 
     // Navigation settings
     $temp = new admin_settingpage('navigation', new lang_string('navigation'));
-    $temp->add(new admin_setting_configcheckbox(
+    $enabledashboard = new admin_setting_configcheckbox(
         'enabledashboard',
         new lang_string('enabledashboard', 'admin'),
         new lang_string('enabledashboard_help', 'admin'),
         1
-    ));
+    );
+    $enabledashboard->set_updatedcallback('core_validate_homepage_options');
+    $temp->add($enabledashboard);
 
-    $choices = [HOMEPAGE_SITE => new lang_string('home')];
-    if (!isset($CFG->enabledashboard) || $CFG->enabledashboard) {
-        $choices[HOMEPAGE_MY] = new lang_string('mymoodle', 'admin');
-    }
-    $choices[HOMEPAGE_MYCOURSES] = new lang_string('mycourses', 'admin');
-    $choices[HOMEPAGE_USER] = new lang_string('userpreference', 'admin');
+    $enablemycourses = new admin_setting_configcheckbox(
+        'enablemycourses',
+        new lang_string('enablemycourses', 'admin'),
+        new lang_string('enablemycourses_help', 'admin'),
+        0
+    );
+    $enablemycourses->set_updatedcallback('core_validate_homepage_options');
+    $temp->add($enablemycourses);
 
-    // Allow hook callbacks to extend options.
-    $hook = new \core_user\hook\extend_default_homepage();
-    \core\di::get(\core\hook\manager::class)->dispatch($hook);
-    $choices += $hook->get_options();
+    $choices = get_default_home_page_options();
 
     $temp->add(new admin_setting_configselect('defaulthomepage', new lang_string('defaulthomepage', 'admin'),
             new lang_string('configdefaulthomepage', 'admin'), get_default_home_page(), $choices));

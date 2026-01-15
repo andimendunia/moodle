@@ -1657,5 +1657,14 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2026010900.02);
     }
 
+    if ($oldversion < 2026011600.01) {
+        // For existing sites, enable My Courses by default to maintain current behavior.
+        $enablemycourses = get_config('core', 'enablemycourses');
+        if ($enablemycourses === false || $enablemycourses === null) {
+            set_config('enablemycourses', 1);
+        }
+
+        upgrade_main_savepoint(true, 2026011600.01);
+    }
     return true;
 }

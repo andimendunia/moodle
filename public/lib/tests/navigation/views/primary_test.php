@@ -38,9 +38,13 @@ final class primary_test extends \advanced_testcase {
      * @dataProvider setting_initialise_provider
      */
     public function test_setting_initialise($usertype, $expected): void {
-        global $PAGE;
+        global $PAGE, $CFG;
         $PAGE->set_url("/");
         $this->resetAfterTest();
+        
+        // Enable my courses by default for tests.
+        $CFG->enablemycourses = 1;
+        
         if ($usertype == 'admin') {
             $this->setAdminUser();
         } else if ($usertype == 'guest') {

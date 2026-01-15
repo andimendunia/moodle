@@ -35,6 +35,18 @@ redirect_if_major_upgrade_required();
 
 require_login();
 
+// Redirect if My Courses is disabled.
+if (empty($CFG->enablemycourses)) {
+    $defaultpage = get_home_page();
+    if ($defaultpage == HOMEPAGE_URL) {
+        redirect(get_default_home_page_url());
+    } else if ($defaultpage == HOMEPAGE_MY) {
+        redirect(new moodle_url('/my/'));
+    } else {
+        redirect(new moodle_url('/'));
+    }
+}
+
 $hassiteconfig = has_capability('moodle/site:config', context_system::instance());
 if ($hassiteconfig && moodle_needs_upgrading()) {
     redirect(new moodle_url('/admin/index.php'));
