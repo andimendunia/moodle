@@ -80,8 +80,10 @@ final class primary_extend_test extends \advanced_testcase {
      * @covers \core\navigation\views\primary::initialise
      */
     public function test_unsupported_hacks(): void {
-        global $PAGE;
+        global $PAGE, $CFG;
         $this->resetAfterTest();
+
+        $CFG->enablemycourses = 1;
 
         $PAGE = new \moodle_page();
         $PAGE->set_url('/');

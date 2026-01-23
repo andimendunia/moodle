@@ -41,10 +41,10 @@ final class primary_test extends \advanced_testcase {
         global $PAGE, $CFG;
         $PAGE->set_url("/");
         $this->resetAfterTest();
-        
+
         // Enable my courses by default for tests.
         $CFG->enablemycourses = 1;
-        
+
         if ($usertype == 'admin') {
             $this->setAdminUser();
         } else if ($usertype == 'guest') {
