@@ -36,6 +36,9 @@ $form = new core_user\form\defaulthomepage_form();
 
 $defaulthomepage = get_default_home_page();
 $user->defaulthomepage = get_user_preferences('user_home_page_preference', $defaulthomepage, $user);
+if (empty($CFG->enablemyhome) && $user->defaulthomepage == HOMEPAGE_SITE) {
+    $user->defaulthomepage = $defaulthomepage;
+}
 if (empty($CFG->enabledashboard) && $user->defaulthomepage == HOMEPAGE_MY) {
     // If the user was using the dashboard but it's disabled, return the default home page.
     $user->defaulthomepage = $defaulthomepage;

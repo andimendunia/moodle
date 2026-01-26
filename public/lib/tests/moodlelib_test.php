@@ -5246,6 +5246,7 @@ EOT;
      * @param int|null $enabledashboard Whether the dashboard should be enabled or not.
      * @param int|string|null $userpreference User preference for the home page setting.
      * $param int|null $allowguestmymoodle The $CFG->allowguestmymoodle setting value.
+     * @param int|null $enablemyhome Whether the home page should be enabled or not.
      * @covers ::get_home_page
      */
     public function test_get_home_page(
@@ -5255,6 +5256,7 @@ EOT;
         ?int $enabledashboard = null,
         int|string|null $userpreference = null,
         ?int $allowguestmymoodle = null,
+        ?int $enablemyhome = null,
     ): void {
         global $CFG, $USER;
 
@@ -5275,6 +5277,10 @@ EOT;
         if (isset($allowguestmymoodle)) {
             $CFG->allowguestmymoodle = $allowguestmymoodle;
         }
+        if (!isset($enablemyhome)) {
+            $enablemyhome = 1;
+        }
+        $CFG->enablemyhome = $enablemyhome;
 
         if ($USER) {
             set_user_preferences(['user_home_page_preference' => $userpreference], $USER->id);
@@ -5392,6 +5398,27 @@ EOT;
                 'defaulthomepage' => HOMEPAGE_USER,
                 'enabledashboard' => null,
                 'userpreference' => "/home",
+            ],
+            'No logged user with home disabled' => [
+                'user' => 'nologged',
+                'expected' => HOMEPAGE_SITE,
+                'enablemyhome' => 0,
+                'enabledashboard' => 1,
+            ],
+            'Logged user. Site set as default home page with home disabled' => [
+                'user' => 'logged',
+                'expected' => HOMEPAGE_MY,
+                'defaulthomepage' => HOMEPAGE_SITE,
+                'enabledashboard' => 1,
+                'enablemyhome' => 0,
+            ],
+            'Logged user. User preference set to site with home disabled' => [
+                'user' => 'logged',
+                'expected' => HOMEPAGE_MY,
+                'defaulthomepage' => HOMEPAGE_USER,
+                'enabledashboard' => 1,
+                'userpreference' => HOMEPAGE_SITE,
+                'enablemyhome' => 0,
             ],
         ];
     }

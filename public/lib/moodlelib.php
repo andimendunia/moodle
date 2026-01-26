@@ -9889,6 +9889,72 @@ function mnet_get_idp_jump_url($user) {
 }
 
 /**
+ * Returns the available default home page options for site configuration.
+ *
+ * @return array
+ */
+function get_default_home_page_options(): array {
+    global $CFG;
+
+    $options = [];
+    if (!empty($CFG->enablemyhome)) {
+        $options[HOMEPAGE_SITE] = new lang_string('home');
+    }
+    if (!empty($CFG->enabledashboard)) {
+        $options[HOMEPAGE_MY] = new lang_string('mymoodle', 'admin');
+    }
+    $options[HOMEPAGE_MYCOURSES] = new lang_string('mycourses', 'admin');
+    $options[HOMEPAGE_USER] = new lang_string('userpreference', 'admin');
+
+    // Allow hook callbacks to extend options.
+    $hook = new \core_user\hook\extend_default_homepage();
+    \core\di::get(\core\hook\manager::class)->dispatch($hook);
+    $options += $hook->get_options();
+
+    return $options;
+}
+
+/**
+ * Returns the available home page options for user preference selection.
+ *
+ * @return array
+ */
+function get_user_home_page_options(): array {
+    global $CFG;
+
+    $options = [];
+    if (!empty($CFG->enablemyhome)) {
+        $options[HOMEPAGE_SITE] = new lang_string('home');
+    }
+    if (!empty($CFG->enabledashboard)) {
+        $options[HOMEPAGE_MY] = new lang_string('mymoodle', 'admin');
+    }
+    $options[HOMEPAGE_MYCOURSES] = new lang_string('mycourses', 'admin');
+
+    // Allow hook callbacks to extend options.
+    $hook = new \core_user\hook\extend_default_homepage(true);
+    \core\di::get(\core\hook\manager::class)->dispatch($hook);
+    $options += $hook->get_options();
+
+    return $options;
+}
+
+/**
+ * Ensures the default home page setting remains valid for the current configuration.
+ */
+function core_update_default_homepage_setting(): void {
+    $current = get_config('core', 'defaulthomepage');
+    if ($current === false || $current === null) {
+        return;
+    }
+
+    $options = get_default_home_page_options();
+    if (!array_key_exists($current, $options)) {
+        set_config('defaulthomepage', get_default_home_page());
+    }
+}
+
+/**
  * Gets the homepage to use for the current user
  *
  * @return int One of HOMEPAGE_*
@@ -9896,10 +9962,18 @@ function mnet_get_idp_jump_url($user) {
 function get_home_page() {
     global $CFG;
 
-    if (isloggedin() && !empty($CFG->defaulthomepage)) {
+    $homeenabled = !empty($CFG->enablemyhome);
+
+    if (isloggedin() && isset($CFG->defaulthomepage) && $CFG->defaulthomepage !== '') {
         // If dashboard is disabled, home will be set to default page.
         $defaultpage = get_default_home_page();
-        if ($CFG->defaulthomepage == HOMEPAGE_MY && (!isguestuser() || !empty($CFG->allowguestmymoodle))) {
+        if ($CFG->defaulthomepage == HOMEPAGE_SITE) {
+            if ($homeenabled) {
+                return HOMEPAGE_SITE;
+            } else {
+                return $defaultpage;
+            }
+        } else if ($CFG->defaulthomepage == HOMEPAGE_MY && (!isguestuser() || !empty($CFG->allowguestmymoodle))) {
             if (!empty($CFG->enabledashboard)) {
                 return HOMEPAGE_MY;
             } else {
@@ -9909,6 +9983,9 @@ function get_home_page() {
             return HOMEPAGE_MYCOURSES;
         } else if ($CFG->defaulthomepage == HOMEPAGE_USER && !isguestuser()) {
             $userhomepage = get_user_preferences('user_home_page_preference', $defaultpage);
+            if (!$homeenabled && $userhomepage == HOMEPAGE_SITE) {
+                $userhomepage = $defaultpage;
+            }
             if (empty($CFG->enabledashboard) && $userhomepage == HOMEPAGE_MY) {
                 // If the user was using the dashboard but it's disabled, return the default home page.
                 $userhomepage = $defaultpage;
@@ -9920,19 +9997,33 @@ function get_home_page() {
             return HOMEPAGE_URL;
         }
     }
+    if (!$homeenabled && isloggedin()) {
+        return get_default_home_page();
+    }
     return HOMEPAGE_SITE;
 }
 
 /**
  * Returns the default home page to display if current one is not defined or can't be applied.
- * The default behaviour is to return Dashboard if it's enabled or My courses page if it isn't.
+ * The default behaviour is to return Dashboard if enabled, then My Courses, then Site Home.
  *
  * @return int The default home page.
  */
 function get_default_home_page(): int {
     global $CFG;
 
-    return (!isset($CFG->enabledashboard) || $CFG->enabledashboard) ? HOMEPAGE_MY : HOMEPAGE_MYCOURSES;
+    // Prefer Dashboard if enabled.
+    if (!isset($CFG->enabledashboard) || $CFG->enabledashboard) {
+        return HOMEPAGE_MY;
+    }
+
+    // Then My Courses (always available).
+    if (!isset($CFG->enablemyhome) || $CFG->enablemyhome) {
+        return HOMEPAGE_MYCOURSES;
+    }
+
+    // Final fallback if Site Home is disabled too.
+    return HOMEPAGE_SITE;
 }
 
 /**

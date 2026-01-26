@@ -141,24 +141,28 @@ if ($hassiteconfig or has_any_capability($capabilities, $systemcontext)) { // sp
 
     // Navigation settings
     $temp = new admin_settingpage('navigation', new lang_string('navigation'));
-    $temp->add(new admin_setting_configcheckbox(
+    // Enable "Site home" for Behat/PHPUnit tests, disable for new production installs.
+    // PHPUnit and Behat tests need enablemyhome=1 to avoid breaking tests.
+    $enablemyhomedefault = ((defined('PHPUNIT_TEST') && PHPUNIT_TEST) || defined('BEHAT_SITE_RUNNING')) ? 1 : 0;
+    $enablemyhome = new admin_setting_configcheckbox(
+        'enablemyhome',
+        new lang_string('enablemyhome', 'admin'),
+        new lang_string('enablemyhome_help', 'admin'),
+        $enablemyhomedefault
+    );
+    $enablemyhome->set_updatedcallback('core_update_default_homepage_setting');
+    $temp->add($enablemyhome);
+
+    $enabledashboard = new admin_setting_configcheckbox(
         'enabledashboard',
         new lang_string('enabledashboard', 'admin'),
         new lang_string('enabledashboard_help', 'admin'),
         1
-    ));
+    );
+    $enabledashboard->set_updatedcallback('core_update_default_homepage_setting');
+    $temp->add($enabledashboard);
 
-    $choices = [HOMEPAGE_SITE => new lang_string('home')];
-    if (!isset($CFG->enabledashboard) || $CFG->enabledashboard) {
-        $choices[HOMEPAGE_MY] = new lang_string('mymoodle', 'admin');
-    }
-    $choices[HOMEPAGE_MYCOURSES] = new lang_string('mycourses', 'admin');
-    $choices[HOMEPAGE_USER] = new lang_string('userpreference', 'admin');
-
-    // Allow hook callbacks to extend options.
-    $hook = new \core_user\hook\extend_default_homepage();
-    \core\di::get(\core\hook\manager::class)->dispatch($hook);
-    $choices += $hook->get_options();
+    $choices = get_default_home_page_options();
 
     $temp->add(new admin_setting_configselect('defaulthomepage', new lang_string('defaulthomepage', 'admin'),
             new lang_string('configdefaulthomepage', 'admin'), get_default_home_page(), $choices));

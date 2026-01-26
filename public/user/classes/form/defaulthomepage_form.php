@@ -16,11 +16,6 @@
 
 namespace core_user\form;
 
-use core\di;
-use core\hook\manager;
-use core\lang_string;
-use core_user\hook\extend_default_homepage;
-
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->dirroot . '/lib/formslib.php');
@@ -45,16 +40,7 @@ class defaulthomepage_form extends \moodleform {
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
 
-        $options = [HOMEPAGE_SITE => new lang_string('home')];
-        if (!empty($CFG->enabledashboard)) {
-            $options[HOMEPAGE_MY] = new lang_string('mymoodle', 'admin');
-        }
-        $options[HOMEPAGE_MYCOURSES] = new lang_string('mycourses', 'admin');
-
-        // Allow hook callbacks to extend options.
-        $hook = new extend_default_homepage(true);
-        di::get(manager::class)->dispatch($hook);
-        $options += $hook->get_options();
+        $options = get_user_home_page_options();
 
         $mform->addElement('select', 'defaulthomepage', get_string('defaulthomepageuser'), $options);
         $mform->addHelpButton('defaulthomepage', 'defaulthomepageuser');
