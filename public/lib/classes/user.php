@@ -1157,16 +1157,7 @@ class user {
             'permissioncallback' => [static::class, 'is_current_user'],
         ];
 
-        $choices = [HOMEPAGE_SITE];
-        if (!empty($CFG->enabledashboard)) {
-            $choices[] = HOMEPAGE_MY;
-        }
-        $choices[] = HOMEPAGE_MYCOURSES;
-
-        // Allow hook callbacks to extend options.
-        $hook = new \core_user\hook\extend_default_homepage(true);
-        \core\di::get(\core\hook\manager::class)->dispatch($hook);
-        $choices = array_merge($choices, array_keys($hook->get_options()));
+        $choices = array_keys(get_user_home_page_options());
 
         $preferences['user_home_page_preference'] = [
             'null' => NULL_ALLOWED,

@@ -5246,6 +5246,7 @@ EOT;
      * @param int|null $enabledashboard Whether the dashboard should be enabled or not.
      * @param int|string|null $userpreference User preference for the home page setting.
      * $param int|null $allowguestmymoodle The $CFG->allowguestmymoodle setting value.
+     * @param int|null $enablemycourses Whether my courses should be enabled or not.
      * @covers ::get_home_page
      */
     public function test_get_home_page(
@@ -5255,6 +5256,7 @@ EOT;
         ?int $enabledashboard = null,
         int|string|null $userpreference = null,
         ?int $allowguestmymoodle = null,
+        ?int $enablemycourses = null,
     ): void {
         global $CFG, $USER;
 
@@ -5275,6 +5277,10 @@ EOT;
         if (isset($allowguestmymoodle)) {
             $CFG->allowguestmymoodle = $allowguestmymoodle;
         }
+        if (!isset($enablemycourses)) {
+            $enablemycourses = 1;
+        }
+        $CFG->enablemycourses = $enablemycourses;
 
         if ($USER) {
             set_user_preferences(['user_home_page_preference' => $userpreference], $USER->id);
@@ -5392,6 +5398,28 @@ EOT;
                 'defaulthomepage' => HOMEPAGE_USER,
                 'enabledashboard' => null,
                 'userpreference' => "/home",
+            ],
+            'Logged user. My courses set as default home page with my courses disabled' => [
+                'user' => 'logged',
+                'expected' => HOMEPAGE_MY,
+                'defaulthomepage' => HOMEPAGE_MYCOURSES,
+                'enabledashboard' => 1,
+                'enablemycourses' => 0,
+            ],
+            'Logged user. User preference set to my courses with my courses disabled' => [
+                'user' => 'logged',
+                'expected' => HOMEPAGE_MY,
+                'defaulthomepage' => HOMEPAGE_USER,
+                'enabledashboard' => 1,
+                'userpreference' => HOMEPAGE_MYCOURSES,
+                'enablemycourses' => 0,
+            ],
+            'Logged user. My courses disabled and dashboard disabled, fallback to site' => [
+                'user' => 'logged',
+                'expected' => HOMEPAGE_SITE,
+                'defaulthomepage' => HOMEPAGE_MYCOURSES,
+                'enabledashboard' => 0,
+                'enablemycourses' => 0,
             ],
         ];
     }

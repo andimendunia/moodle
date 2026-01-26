@@ -40,6 +40,10 @@ if (empty($CFG->enabledashboard) && $user->defaulthomepage == HOMEPAGE_MY) {
     // If the user was using the dashboard but it's disabled, return the default home page.
     $user->defaulthomepage = $defaulthomepage;
 }
+if (empty($CFG->enablemycourses) && $user->defaulthomepage == HOMEPAGE_MYCOURSES) {
+    // If the user was using my courses but it's disabled, return the default home page.
+    $user->defaulthomepage = $defaulthomepage;
+}
 $form->set_data($user);
 
 $redirect = new moodle_url('/user/preferences.php', ['userid' => $user->id]);
