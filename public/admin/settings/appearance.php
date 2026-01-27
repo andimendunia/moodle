@@ -148,11 +148,21 @@ if ($hassiteconfig or has_any_capability($capabilities, $systemcontext)) { // sp
         1
     ));
 
-    $choices = [HOMEPAGE_SITE => new lang_string('home')];
+    $temp->add(new admin_setting_configcheckbox(
+        'enablemycourses',
+        new lang_string('enablemycourses', 'admin'),
+        new lang_string('enablemycourses_help', 'admin'),
+        0
+    ));
+
+    $choices = [];
     if (!isset($CFG->enabledashboard) || $CFG->enabledashboard) {
         $choices[HOMEPAGE_MY] = new lang_string('mymoodle', 'admin');
     }
-    $choices[HOMEPAGE_MYCOURSES] = new lang_string('mycourses', 'admin');
+    if (!isset($CFG->enablemycourses) || $CFG->enablemycourses) {
+        $choices[HOMEPAGE_MYCOURSES] = new lang_string('mycourses', 'admin');
+    }
+    $choices[HOMEPAGE_SITE] = new lang_string('home');
     $choices[HOMEPAGE_USER] = new lang_string('userpreference', 'admin');
 
     // Allow hook callbacks to extend options.
