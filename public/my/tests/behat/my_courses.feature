@@ -2,7 +2,9 @@
 Feature: Run tests over my courses page
 
   Background:
-    Given the following "users" exist:
+    Given the following config values are set as admin:
+      | enablemycourses | 1 |
+    And the following "users" exist:
       | username | firstname | lastname | email             |
       | user1    | User      | 1        | user1@example.com |
     And the following "categories" exist:

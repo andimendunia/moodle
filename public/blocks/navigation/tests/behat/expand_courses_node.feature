@@ -36,6 +36,7 @@ Feature: Expand the courses nodes within the navigation block
       | student1 | c4     | student |
     And the following config values are set as admin:
       | navshowallcourses | 1 |
+      | enablemycourses | 1 |
     And I log in as "admin"
     And I am on site homepage
     And I turn editing mode on
