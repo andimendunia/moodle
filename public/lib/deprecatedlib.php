@@ -717,3 +717,95 @@ function badges_get_default_issuer() {
     $issuer['type'] = OPEN_BADGES_V2_TYPE_ISSUER;
     return $issuer;
 }
+
+/**
+ * Generate the endpoint url to the user's moodlenet site.
+ *
+ * @param string $profileurl The user's moodlenet profile page
+ * @param int $course The moodle course the mnet resource will be added to
+ * @param int $section The section of the course will be added to. Defaults to the 0th element.
+ * @return string the resulting endpoint
+ * @throws moodle_exception
+ *
+ * @deprecated since Moodle 5.2 MDL-87351
+ * @todo MDL-87562 Final deprecation in Moodle 6.0
+ */
+#[\core\attribute\deprecated(
+    since: '5.2',
+    mdl: 'MDL-87351',
+    reason: 'MoodleNet inbound sharing functionality has been deprecated.'
+)]
+function generate_mnet_endpoint(string $profileurl, int $course, int $section = 0) {
+    \core\deprecation::emit_deprecation(__FUNCTION__);
+
+    global $CFG;
+    $urlportions = explode('@', $profileurl);
+    $domain = end($urlportions);
+    $parsedurl = parse_url($domain);
+    $params = [
+        'site' => $CFG->wwwroot,
+        'course' => $course,
+        'section' => $section,
+    ];
+    $endpoint = new moodle_url(MOODLENET_DEFAULT_ENDPOINT, $params);
+    return (isset($parsedurl['scheme']) ? $domain : "https://$domain") . "/{$endpoint->out(false)}";
+}
+
+/**
+ * Hooking function to build up the initial Activity Chooser footer information for MoodleNet
+ *
+ * @param int $courseid The course the user is currently in and wants to add resources to
+ * @param int $sectionid The section the user is currently in and wants to add resources to
+ * @return activity_chooser_footer
+ * @throws dml_exception
+ * @throws moodle_exception
+ *
+ * @deprecated since Moodle 5.2 MDL-87351
+ * @todo MDL-87562 Final deprecation in Moodle 6.0
+ */
+#[\core\attribute\deprecated(
+    since: '5.2',
+    mdl: 'MDL-87351',
+    reason: 'MoodleNet inbound sharing functionality has been deprecated.'
+)]
+function tool_moodlenet_custom_chooser_footer(int $courseid, int $sectionid): \core_course\local\entity\activity_chooser_footer {
+    \core\deprecation::emit_deprecation(__FUNCTION__);
+
+    global $CFG, $USER, $OUTPUT;
+    $defaultlink = get_config('tool_moodlenet', 'defaultmoodlenet');
+    $enabled = get_config('tool_moodlenet', 'enablemoodlenet');
+
+    $advanced = false;
+    // We are in the MoodleNet lib. It is safe assume we have our own functions here.
+    $mnetprofile = \tool_moodlenet\profile_manager::get_moodlenet_user_profile($USER->id);
+    if ($mnetprofile !== null) {
+        $advanced = $mnetprofile->get_domain() ?? false;
+    }
+
+    $defaultlink = generate_mnet_endpoint($defaultlink, $courseid, $sectionid);
+    if ($advanced !== false) {
+        $advanced = generate_mnet_endpoint($advanced, $courseid, $sectionid);
+    }
+
+    $renderedfooter = $OUTPUT->render_from_template('tool_moodlenet/chooser_footer', (object)[
+        'enabled' => (bool)$enabled,
+        'generic' => $defaultlink,
+        'advanced' => $advanced,
+        'courseID' => $courseid,
+        'sectionnum' => $sectionid,
+        'img' => $OUTPUT->image_url('MoodleNet', 'tool_moodlenet')->out(false),
+    ]);
+
+    $renderedcarousel = $OUTPUT->render_from_template('tool_moodlenet/chooser_moodlenet', (object)[
+        'buttonName' => get_config('tool_moodlenet', 'defaultmoodlenetname'),
+        'generic' => $defaultlink,
+        'courseID' => $courseid,
+        'sectionnum' => $sectionid,
+        'img' => $OUTPUT->image_url('MoodleNet', 'tool_moodlenet')->out(false),
+    ]);
+    return new \core_course\local\entity\activity_chooser_footer(
+        'tool_moodlenet/instance_form',
+        $renderedfooter,
+        $renderedcarousel
+    );
+}
