@@ -1161,7 +1161,9 @@ class user {
         if (!empty($CFG->enabledashboard)) {
             $choices[] = HOMEPAGE_MY;
         }
-        $choices[] = HOMEPAGE_MYCOURSES;
+        if (!empty($CFG->enablemycourses)) {
+            $choices[] = HOMEPAGE_MYCOURSES;
+        }
 
         // Allow hook callbacks to extend options.
         $hook = new \core_user\hook\extend_default_homepage(true);

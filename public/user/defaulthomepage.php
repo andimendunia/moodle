@@ -36,8 +36,12 @@ $form = new core_user\form\defaulthomepage_form();
 
 $defaulthomepage = get_default_home_page();
 $user->defaulthomepage = get_user_preferences('user_home_page_preference', $defaulthomepage, $user);
-if (empty($CFG->enabledashboard) && $user->defaulthomepage == HOMEPAGE_MY) {
+if (isset($CFG->enabledashboard) && !$CFG->enabledashboard && $user->defaulthomepage == HOMEPAGE_MY) {
     // If the user was using the dashboard but it's disabled, return the default home page.
+    $user->defaulthomepage = $defaulthomepage;
+}
+if (isset($CFG->enablemycourses) && !$CFG->enablemycourses && $user->defaulthomepage == HOMEPAGE_MYCOURSES) {
+    // If the user was using my courses but it's disabled, return the default home page.
     $user->defaulthomepage = $defaulthomepage;
 }
 $form->set_data($user);

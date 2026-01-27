@@ -49,7 +49,9 @@ class defaulthomepage_form extends \moodleform {
         if (!empty($CFG->enabledashboard)) {
             $options[HOMEPAGE_MY] = new lang_string('mymoodle', 'admin');
         }
-        $options[HOMEPAGE_MYCOURSES] = new lang_string('mycourses', 'admin');
+        if (!empty($CFG->enablemycourses)) {
+            $options[HOMEPAGE_MYCOURSES] = new lang_string('mycourses', 'admin');
+        }
 
         // Allow hook callbacks to extend options.
         $hook = new extend_default_homepage(true);
