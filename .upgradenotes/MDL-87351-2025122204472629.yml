@@ -1,0 +1,10 @@
+issueNumber: MDL-87351
+notes:
+  tool_moodlenet:
+    - message: >-
+        MoodleNet inbound sharing functionality has been deprecated. All
+        classes, functions, and entry files related to inbound sharing are now
+        deprecated and will be removed in a future release. There is no
+        replacement for this functionality as MoodleNet inbound sharing is being
+        discontinued.
+      type: deprecated
