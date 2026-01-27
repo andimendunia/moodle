@@ -45,21 +45,35 @@ class defaulthomepage_form extends \moodleform {
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
 
-        $options = [HOMEPAGE_SITE => new lang_string('home')];
-        if (!empty($CFG->enabledashboard)) {
+        $options = [];
+        if (!isset($CFG->enablemyhome) || $CFG->enablemyhome) {
+            $options[HOMEPAGE_SITE] = new lang_string('home');
+        }
+        if (!isset($CFG->enabledashboard) || $CFG->enabledashboard) {
             $options[HOMEPAGE_MY] = new lang_string('mymoodle', 'admin');
         }
-        $options[HOMEPAGE_MYCOURSES] = new lang_string('mycourses', 'admin');
+        if (!isset($CFG->enablemycourses) || $CFG->enablemycourses) {
+            $options[HOMEPAGE_MYCOURSES] = new lang_string('mycourses', 'admin');
+        }
 
         // Allow hook callbacks to extend options.
         $hook = new extend_default_homepage(true);
         di::get(manager::class)->dispatch($hook);
         $options += $hook->get_options();
 
-        $mform->addElement('select', 'defaulthomepage', get_string('defaulthomepageuser'), $options);
-        $mform->addHelpButton('defaulthomepage', 'defaulthomepageuser');
-        $mform->setDefault('defaulthomepage', get_default_home_page());
-
-        $this->add_action_buttons(true, get_string('savechanges'));
+        if (!empty($options)) {
+            $mform->addElement('select', 'defaulthomepage', get_string('defaulthomepageuser'), $options);
+            $mform->addHelpButton('defaulthomepage', 'defaulthomepageuser');
+            $mform->setDefault('defaulthomepage', get_default_home_page());
+            $this->add_action_buttons(true, get_string('savechanges'));
+        } else {
+            // No options available - show info message without action buttons.
+            $mform->addElement(
+                'static',
+                'nooptions',
+                '',
+                get_string('nohomepageoptions', 'error')
+            );
+        }
     }
 }

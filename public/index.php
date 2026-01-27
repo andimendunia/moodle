@@ -82,6 +82,9 @@ if ($homepage != HOMEPAGE_SITE) {
         redirect($CFG->wwwroot .'/my/courses.php');
     } else if ($homepage == HOMEPAGE_URL) {
         redirect(get_default_home_page_url());
+    } else if ($homepage == HOMEPAGE_USER) {
+        // All homepage options disabled - redirect to user preferences page.
+        redirect($CFG->wwwroot . '/user/preferences.php');
     } else if (!empty($CFG->defaulthomepage) && ($CFG->defaulthomepage == HOMEPAGE_USER)) {
         $frontpagenode = $PAGE->settingsnav->find('frontpage', null);
         if ($frontpagenode) {
