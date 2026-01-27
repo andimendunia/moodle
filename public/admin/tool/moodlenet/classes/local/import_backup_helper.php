@@ -29,7 +29,14 @@ namespace tool_moodlenet\local;
  *
  * @copyright 2020 Adrian Greeve <adrian@moodle.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @deprecated since Moodle 5.2 MDL-87351
+ * @todo MDL-87562 This class will be removed in Moodle 6.0
  */
+#[\core\attribute\deprecated(
+    since: '5.2',
+    mdl: 'MDL-87351',
+    reason: 'MoodleNet inbound sharing functionality has been deprecated.'
+)]
 class import_backup_helper {
 
     /** @var remote_resource $remoteresource A file resource to be restored. */
@@ -50,8 +57,11 @@ class import_backup_helper {
      * @param remote_resource $remoteresource A remote file resource
      * @param \stdClass       $user           The user importing a file.
      * @param \context        $context        Context to restore into.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function __construct(remote_resource $remoteresource, \stdClass $user, \context $context) {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         $this->remoteresource = $remoteresource;
         $this->user = $user;
         $this->context = $context;
@@ -69,8 +79,10 @@ class import_backup_helper {
      * Return a stored user draft file for processing.
      *
      * @return \stored_file The imported file to ultimately be restored.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_stored_file(): \stored_file {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
 
         // Check if the user can upload a backup to this context.
         require_capability('moodle/restore:uploadfile', $this->context, $this->user->id);
@@ -155,8 +167,11 @@ class import_backup_helper {
      *
      * @param  int $userid The user ID that we are looking for a working context for.
      * @return \context A context that allows the upload of backup files.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public static function get_context_for_user(int $userid): ?\context {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         global $DB;
 
         if (is_siteadmin()) {

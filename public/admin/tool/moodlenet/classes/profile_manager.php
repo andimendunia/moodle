@@ -30,7 +30,14 @@ namespace tool_moodlenet;
  * @package    tool_moodlenet
  * @copyright  2020 Adrian Greeve <adrian@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @deprecated since Moodle 5.2 MDL-87351
+ * @todo MDL-87562 This class will be removed in Moodle 6.0
  */
+#[\core\attribute\deprecated(
+    since: '5.2',
+    mdl: 'MDL-87351',
+    reason: 'MoodleNet inbound sharing functionality has been deprecated.'
+)]
 class profile_manager {
 
     /**
@@ -38,8 +45,11 @@ class profile_manager {
      *
      * @param  int $userid The ID for the user to get the profile form
      * @return moodlenet_user_profile or null.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public static function get_moodlenet_user_profile(int $userid): ?moodlenet_user_profile {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         global $CFG;
         // Check for official profile.
         if (self::official_profile_exists()) {
@@ -73,8 +83,11 @@ class profile_manager {
      * Save the moodlenet profile.
      *
      * @param moodlenet_user_profile $moodlenetprofile The moodlenet profile to save.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public static function save_moodlenet_user_profile(moodlenet_user_profile $moodlenetprofile): void {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         global $CFG, $DB;
         // Do some cursory checks first to see if saving is possible.
         if (self::official_profile_exists()) {
@@ -161,8 +174,11 @@ class profile_manager {
      * Are we using the proper user profile field to hold the mnet profile?
      *
      * @return bool True if we are using a user table field for the mnet profile. False means we are using costom profile fields.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public static function official_profile_exists(): bool {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         global $DB;
 
         $usertablecolumns = $DB->get_columns('user', false);
@@ -176,8 +192,11 @@ class profile_manager {
      * Gets the category name that is set for this site.
      *
      * @return string The category used to hold the moodle net profile field.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public static function get_category_name(): string {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         return get_config('tool_moodlenet', 'profile_category');
     }
 
@@ -212,8 +231,11 @@ class profile_manager {
      * Create a custom user profile category to hold our custom field.
      *
      * @return int The id of the created category.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public static function create_user_profile_category(): int {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         global $DB;
         // No nice API to do this, so direct DB calls it is.
         $data = new \stdClass();
@@ -257,8 +279,11 @@ class profile_manager {
      * Gets the unique profile field used to hold the moodle net profile.
      *
      * @return string The profile field name being used on this site.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public static function get_profile_field_name(): string {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         return get_config('tool_moodlenet', 'profile_field_name');
     }
 
@@ -267,8 +292,11 @@ class profile_manager {
      * Create a user profile field to hold the moodlenet profile information.
      *
      * @param  int $categoryid The category to put this field into.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public static function create_user_profile_text_field(int $categoryid): void {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         global $CFG;
 
         require_once($CFG->dirroot . '/user/profile/definelib.php');
@@ -297,8 +325,11 @@ class profile_manager {
      *
      * @param moodlenet_user_profile $moodlenetprofile The moodlenet profile to get info from.
      * @return array [bool, text, raw]
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public static function get_moodlenet_profile_link(moodlenet_user_profile $moodlenetprofile): array {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         $domain = $moodlenetprofile->get_domain();
         $username = $moodlenetprofile->get_username();
 

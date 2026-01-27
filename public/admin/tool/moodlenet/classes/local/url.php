@@ -27,7 +27,14 @@ namespace tool_moodlenet\local;
  *
  * @copyright 2020 Jake Dallimore <jrhdallimore@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @deprecated since Moodle 5.2 MDL-87351
+ * @todo MDL-87562 This class will be removed in Moodle 6.0
  */
+#[\core\attribute\deprecated(
+    since: '5.2',
+    mdl: 'MDL-87351',
+    reason: 'MoodleNet inbound sharing functionality has been deprecated.'
+)]
 class url {
 
     /** @var string $url the full URL string.*/
@@ -44,8 +51,11 @@ class url {
      *
      * @param string $url the URL string.
      * @throws \coding_exception if the URL does not pass syntax validation.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function __construct(string $url) {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         // This object supports URLs as per the spec, so non-ascii chars must be encoded as per IDNA rules.
         if (!filter_var($url, FILTER_VALIDATE_URL)) {
             throw new \coding_exception('Malformed URL');
@@ -59,8 +69,11 @@ class url {
      * Get the path component of the URL.
      *
      * @return string|null the path component of the URL.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_path(): ?string {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         return $this->path;
     }
 
@@ -68,8 +81,11 @@ class url {
      * Return the domain component of the URL.
      *
      * @return string|null the domain component of the URL.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_host(): ?string {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         return $this->host;
     }
 
@@ -77,8 +93,11 @@ class url {
      * Return the full URL string.
      *
      * @return string the full URL string.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_value() {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         return  $this->url;
     }
 }

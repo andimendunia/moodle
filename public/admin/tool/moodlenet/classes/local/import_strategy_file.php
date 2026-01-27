@@ -32,7 +32,14 @@ use core\antivirus\manager as avmanager;
  *
  * @copyright 2020 Jake Dallimore <jrhdallimore@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @deprecated since Moodle 5.2 MDL-87351
+ * @todo MDL-87562 This class will be removed in Moodle 6.0
  */
+#[\core\attribute\deprecated(
+    since: '5.2',
+    mdl: 'MDL-87351',
+    reason: 'MoodleNet inbound sharing functionality has been deprecated.'
+)]
 class import_strategy_file implements import_strategy {
 
     /**
@@ -41,8 +48,11 @@ class import_strategy_file implements import_strategy {
      * @param array $registrydata the fully populated registry.
      * @param remote_resource $resource the remote resource.
      * @return import_handler_info[] the array of import_handler_info objects.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_handlers(array $registrydata, remote_resource $resource): array {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         $handlers = [];
         foreach ($registrydata['files'] as $index => $items) {
             foreach ($items as $item) {
@@ -63,8 +73,11 @@ class import_strategy_file implements import_strategy {
      * @param int $section the section into which the remote_resource is being imported.
      * @return \stdClass the module data.
      * @throws \moodle_exception if the file size means the upload limit is exceeded for the user.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function import(remote_resource $resource, \stdClass $user, \stdClass $course, int $section): \stdClass {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         // Before starting a potentially lengthy download, try to ensure the file size does not exceed the upload size restrictions
         // for the user. This is a time saving measure.
         // This is a naive check, that serves only to catch files if they provide the content length header.

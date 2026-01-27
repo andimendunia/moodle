@@ -29,7 +29,14 @@ namespace tool_moodlenet\local;
  *
  * @copyright 2020 Jake Dallimore <jrhdallimore@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @deprecated since Moodle 5.2 MDL-87351
+ * @todo MDL-87562 This class will be removed in Moodle 6.0
  */
+#[\core\attribute\deprecated(
+    since: '5.2',
+    mdl: 'MDL-87351',
+    reason: 'MoodleNet inbound sharing functionality has been deprecated.'
+)]
 class remote_resource {
 
     /** @var \curl $curl the curl http helper.*/
@@ -56,8 +63,10 @@ class remote_resource {
      * @param \curl $curl a curl object for HTTP requests.
      * @param url $url the URL of the remote resource.
      * @param \stdClass $metadata resource metadata such as name, summary, license, etc.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function __construct(\curl $curl, url $url, \stdClass $metadata) {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         $this->curl = $curl;
         $this->url = $url;
         $this->filename = pathinfo($this->url->get_path() ?? '', PATHINFO_FILENAME);
@@ -69,15 +78,21 @@ class remote_resource {
      * Return the URL for this remote resource.
      *
      * @return url the url object.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_url(): url {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         return $this->url;
     }
 
     /**
      * Get the name of the file as taken from the metadata.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_name(): string {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         return $this->metadata->name ?? '';
     }
 
@@ -85,17 +100,23 @@ class remote_resource {
      * Get the resource metadata.
      *
      * @return \stdClass the metadata.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_metadata(): \stdClass {
-        return$this->metadata;
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
+        return $this->metadata;
     }
 
     /**
      * Get the description of the resource as taken from the metadata.
      *
      * @return string
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_description(): string {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         return $this->metadata->description ?? '';
     }
 
@@ -103,8 +124,11 @@ class remote_resource {
      * Return the extension of the file, if found.
      *
      * @return string the extension of the file, if found.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_extension(): string {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         return $this->extension;
     }
 
@@ -112,8 +136,11 @@ class remote_resource {
      * Returns the file size of the remote file, in bytes, or null if it cannot be determined.
      *
      * @return int|null the content length, if able to be determined, otherwise null.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_download_size(): ?int {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         $this->get_resource_info();
         return $this->headinfo['download_content_length'] ?? null;
     }
@@ -123,8 +150,11 @@ class remote_resource {
      *
      * @return array an array containing filepath adn filename, e.g. [filepath, filename].
      * @throws \moodle_exception if the file cannot be downloaded.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function download_to_requestdir(): array {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         $filename = sprintf('%s.%s', $this->filename, $this->get_extension());
         $path = make_request_directory();
         $fullpathwithname = sprintf('%s/%s', $path, $filename);

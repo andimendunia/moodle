@@ -24,81 +24,18 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-use \core_course\local\entity\activity_chooser_footer;
-
 /**
  * The default endpoint to MoodleNet.
+ *
+ * @deprecated since Moodle 5.2 MDL-87351
+ * @todo MDL-87562 This constant will be removed in Moodle 6.0
  */
 define('MOODLENET_DEFAULT_ENDPOINT', "lms/moodle/search");
 
 /**
- * Generate the endpoint url to the user's moodlenet site.
+ * Note: The following functions have been moved to lib/deprecatedlib.php:
+ * - generate_mnet_endpoint()
+ * - tool_moodlenet_custom_chooser_footer()
  *
- * @param string $profileurl The user's moodlenet profile page
- * @param int $course The moodle course the mnet resource will be added to
- * @param int $section The section of the course will be added to. Defaults to the 0th element.
- * @return string the resulting endpoint
- * @throws moodle_exception
+ * @deprecated since Moodle 5.2 MDL-87351
  */
-function generate_mnet_endpoint(string $profileurl, int $course, int $section = 0) {
-    global $CFG;
-    $urlportions = explode('@', $profileurl);
-    $domain = end($urlportions);
-    $parsedurl = parse_url($domain);
-    $params = [
-        'site' => $CFG->wwwroot,
-        'course' => $course,
-        'section' => $section
-    ];
-    $endpoint = new moodle_url(MOODLENET_DEFAULT_ENDPOINT, $params);
-    return (isset($parsedurl['scheme']) ? $domain : "https://$domain")."/{$endpoint->out(false)}";
-}
-
-/**
- * Hooking function to build up the initial Activity Chooser footer information for MoodleNet
- *
- * @param int $courseid The course the user is currently in and wants to add resources to
- * @param int $sectionid The section the user is currently in and wants to add resources to
- * @return activity_chooser_footer
- * @throws dml_exception
- * @throws moodle_exception
- */
-function tool_moodlenet_custom_chooser_footer(int $courseid, int $sectionid): activity_chooser_footer {
-    global $CFG, $USER, $OUTPUT;
-    $defaultlink = get_config('tool_moodlenet', 'defaultmoodlenet');
-    $enabled = get_config('tool_moodlenet', 'enablemoodlenet');
-
-    $advanced = false;
-    // We are in the MoodleNet lib. It is safe assume we have our own functions here.
-    $mnetprofile = \tool_moodlenet\profile_manager::get_moodlenet_user_profile($USER->id);
-    if ($mnetprofile !== null) {
-        $advanced = $mnetprofile->get_domain() ?? false;
-    }
-
-    $defaultlink = generate_mnet_endpoint($defaultlink, $courseid, $sectionid);
-    if ($advanced !== false) {
-        $advanced = generate_mnet_endpoint($advanced, $courseid, $sectionid);
-    }
-
-    $renderedfooter = $OUTPUT->render_from_template('tool_moodlenet/chooser_footer', (object)[
-        'enabled' => (bool)$enabled,
-        'generic' => $defaultlink,
-        'advanced' => $advanced,
-        'courseID' => $courseid,
-        'sectionnum' => $sectionid,
-        'img' => $OUTPUT->image_url('MoodleNet', 'tool_moodlenet')->out(false),
-    ]);
-
-    $renderedcarousel = $OUTPUT->render_from_template('tool_moodlenet/chooser_moodlenet', (object)[
-        'buttonName' => get_config('tool_moodlenet', 'defaultmoodlenetname'),
-        'generic' => $defaultlink,
-        'courseID' => $courseid,
-        'sectionnum' => $sectionid,
-        'img' => $OUTPUT->image_url('MoodleNet', 'tool_moodlenet')->out(false),
-    ]);
-    return new activity_chooser_footer(
-        'tool_moodlenet/instance_form',
-        $renderedfooter,
-        $renderedcarousel
-    );
-}

@@ -29,7 +29,14 @@ namespace tool_moodlenet\local;
  *
  * @copyright 2020 Jake Dallimore <jrhdallimore@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @deprecated since Moodle 5.2 MDL-87351
+ * @todo MDL-87562 This class will be removed in Moodle 6.0
  */
+#[\core\attribute\deprecated(
+    since: '5.2',
+    mdl: 'MDL-87351',
+    reason: 'MoodleNet inbound sharing functionality has been deprecated.'
+)]
 class import_strategy_link implements import_strategy {
 
     /**
@@ -38,8 +45,11 @@ class import_strategy_link implements import_strategy {
      * @param array $registrydata the fully populated registry.
      * @param remote_resource $resource the remote resource.
      * @return import_handler_info[] the array of import_handler_info objects.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_handlers(array $registrydata, remote_resource $resource): array {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         $handlers = [];
         foreach ($registrydata['types'] as $identifier => $items) {
             foreach ($items as $item) {
@@ -59,8 +69,11 @@ class import_strategy_link implements import_strategy {
      * @param \stdClass $course the course into which the remote_resource is being imported.
      * @param int $section the section into which the remote_resource is being imported.
      * @return \stdClass the module data.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function import(remote_resource $resource, \stdClass $user, \stdClass $course, int $section): \stdClass {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         $data = new \stdClass();
         $data->type = 'url';
         $data->course = $course;

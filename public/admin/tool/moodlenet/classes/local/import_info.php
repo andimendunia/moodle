@@ -32,7 +32,15 @@ namespace tool_moodlenet\local;
  *
  * @copyright 2020 Jake Dallimore <jrhdallimore@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @deprecated since Moodle 5.2 MDL-87351
+ * @todo MDL-87562 This class will be removed in Moodle 6.0
  */
+#[\core\attribute\deprecated(
+    since: '5.2',
+    mdl: 'MDL-87351',
+    reason: 'MoodleNet inbound sharing functionality has been deprecated.'
+)]
 class import_info {
 
     /** @var int $userid the user conducting this import. */
@@ -53,8 +61,11 @@ class import_info {
      * @param int $userid the id of the user performing the import.
      * @param remote_resource $resource the resource being imported.
      * @param \stdClass $config import config like 'course', 'section', 'type'.
+     *
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function __construct(int $userid, remote_resource $resource, \stdClass $config) {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         $this->userid = $userid;
         $this->resource = $resource;
         $this->config = $config;
@@ -63,8 +74,11 @@ class import_info {
 
     /**
      * Get the id of this object.
+     *
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_id() {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $this->id;
     }
 
@@ -72,8 +86,11 @@ class import_info {
      * Get the remote resource being imported.
      *
      * @return remote_resource the remote resource being imported.
+     *
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_resource(): remote_resource {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $this->resource;
     }
 
@@ -81,8 +98,11 @@ class import_info {
      * Get the configuration data pertaining to the import.
      *
      * @return \stdClass the import configuration data.
+     *
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_config(): \stdClass {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         return $this->config;
     }
 
@@ -90,8 +110,11 @@ class import_info {
      * Set the configuration data pertaining to the import.
      *
      * @param \stdClass $config the configuration data to set.
+     *
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function set_config(\stdClass $config): void {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         $this->config  = $config;
     }
 
@@ -100,8 +123,11 @@ class import_info {
      *
      * @param string $id the id of the import_info object to load.
      * @return mixed an import_info object if found, otherwise null.
+     *
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public static function load(string $id): ?import_info {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         // This currently lives in the session, so we don't need userid.
         // It might be useful if we ever move to another storage mechanism however, where we would need it.
         global $SESSION;
@@ -110,16 +136,22 @@ class import_info {
 
     /**
      * Save this object to a store which is accessible across requests.
+     *
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function save(): void {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         global $SESSION;
         $SESSION->moodlenetimports[$this->id] = serialize($this);
     }
 
     /**
      * Remove all information about an import from the store.
+     *
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function purge(): void {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         global $SESSION;
         unset($SESSION->moodlenetimports[$this->id]);
     }

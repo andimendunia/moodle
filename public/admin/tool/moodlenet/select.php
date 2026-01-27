@@ -20,11 +20,16 @@
  * @package    tool_moodlenet
  * @copyright  2020 Mathew May {@link https://mathew.solutions}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @deprecated since Moodle 5.2 MDL-87351
+ * @todo MDL-87562 This file will be removed in Moodle 6.0
  */
 use tool_moodlenet\local\import_info;
 use tool_moodlenet\output\select_page;
 
 require_once(__DIR__ . '/../../../config.php');
+
+debugging('MoodleNet inbound import functionality has been deprecated and will be removed in a future release.', DEBUG_DEVELOPER);
 
 $id = required_param('id', PARAM_ALPHANUM);
 

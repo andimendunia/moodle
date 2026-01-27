@@ -41,13 +41,21 @@ use core_external\external_value;
  *
  * @copyright  2020 Mathew May {@link https://mathew.solutions}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @deprecated since Moodle 5.2 MDL-87351
+ * @todo MDL-87562 This class will be removed in Moodle 6.0
  */
+#[\core\attribute\deprecated(
+    since: '5.2',
+    mdl: 'MDL-87351',
+    reason: 'MoodleNet inbound sharing functionality has been deprecated.'
+)]
 class external extends external_api {
 
     /**
      * verify_webfinger parameters
      *
      * @return external_function_parameters
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public static function verify_webfinger_parameters() {
         return new external_function_parameters(
@@ -67,8 +75,11 @@ class external extends external_api {
      * @param int $section The section within the course we are adding to
      * @return array Contains the result and domain if any
      * @throws \invalid_parameter_exception
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public static function verify_webfinger(string $profileurl, int $course, int $section) {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         global $USER;
 
         $params = self::validate_parameters(self::verify_webfinger_parameters(), [
@@ -101,6 +112,7 @@ class external extends external_api {
      * verify_webfinger return.
      *
      * @return external_description
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public static function verify_webfinger_returns() {
         return new external_single_structure([
@@ -114,6 +126,7 @@ class external extends external_api {
      * search_courses_parameters
      *
      * @return external_function_parameters
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public static function search_courses_parameters() {
         return new external_function_parameters(
@@ -128,8 +141,11 @@ class external extends external_api {
      *
      * @param string $searchvalue The profile url that the user states exists
      * @return array Contains the result set of courses for the value
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public static function search_courses(string $searchvalue) {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         global $OUTPUT;
 
         $params = self::validate_parameters(
@@ -172,6 +188,7 @@ class external extends external_api {
      * search_courses_returns.
      *
      * @return external_description
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public static function search_courses_returns() {
         return new external_single_structure([
@@ -185,5 +202,23 @@ class external extends external_api {
                     'courseimage' => new external_value(PARAM_RAW, 'course image'),
                 ]))
         ]);
+    }
+
+    /**
+     * Mark verify_webfinger as deprecated.
+     *
+     * @return bool
+     */
+    public static function verify_webfinger_is_deprecated(): bool {
+        return true;
+    }
+
+    /**
+     * Mark search_courses as deprecated.
+     *
+     * @return bool
+     */
+    public static function search_courses_is_deprecated(): bool {
+        return true;
     }
 }

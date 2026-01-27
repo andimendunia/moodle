@@ -30,7 +30,14 @@ namespace tool_moodlenet\local;
  *
  * @copyright 2020 Jake Dallimore <jrhdallimore@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @deprecated since Moodle 5.2 MDL-87351
+ * @todo MDL-87562 This class will be removed in Moodle 6.0
  */
+#[\core\attribute\deprecated(
+    since: '5.2',
+    mdl: 'MDL-87351',
+    reason: 'MoodleNet inbound sharing functionality has been deprecated.'
+)]
 class import_handler_info {
 
     /** @var string $modulename the name of the module. */
@@ -49,8 +56,10 @@ class import_handler_info {
      * @param string $description A description of how the module handles files of this extension type.
      * @param import_strategy $strategy the strategy which will be used to import the resource.
      * @throws \coding_exception
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function __construct(string $modulename, string $description, import_strategy $strategy) {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         if (empty($modulename)) {
             throw new \coding_exception("Module name cannot be empty.");
         }
@@ -66,8 +75,11 @@ class import_handler_info {
      * Get the name of the module.
      *
      * @return string the module name, e.g. 'label'.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_module_name(): string {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         return $this->modulename;
     }
 
@@ -75,8 +87,11 @@ class import_handler_info {
      * Get a human readable, localised description of how the file is handled by the module.
      *
      * @return string the localised description.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_description(): string {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         return $this->description;
     }
 
@@ -84,8 +99,11 @@ class import_handler_info {
      * Get the import strategy used by this handler.
      *
      * @return import_strategy the import strategy object.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_strategy(): import_strategy {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         return $this->importstrategy;
     }
 }

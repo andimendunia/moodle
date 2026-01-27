@@ -30,7 +30,15 @@ namespace tool_moodlenet\local;
  *
  * @copyright 2020 Jake Dallimore <jrhdallimore@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @deprecated since Moodle 5.2 MDL-87351
+ * @todo MDL-87562 This class will be removed in Moodle 6.0
  */
+#[\core\attribute\deprecated(
+    since: '5.2',
+    mdl: 'MDL-87351',
+    reason: 'MoodleNet inbound sharing functionality has been deprecated.'
+)]
 class import_processor {
 
     /** @var object The course that we are uploading to */
@@ -63,9 +71,11 @@ class import_processor {
      * @param import_handler_info $handlerinfo information about which module is handling the import.
      * @param import_handler_registry $handlerregistry A registry of import handlers, to use for validation.
      * @throws \coding_exception If any of the params are invalid.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function __construct(\stdClass $course, int $section, remote_resource $remoteresource, import_handler_info $handlerinfo,
             import_handler_registry $handlerregistry) {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
 
         global $DB, $USER;
 
@@ -90,8 +100,11 @@ class import_processor {
 
     /**
      * Run the import process, including file download, module creation and cleanup (cache purge, etc).
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function process(): void {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         // Allow the strategy to do setup for this file import.
         $moduledata = $this->handlerinfo->get_strategy()->import($this->remoteresource, $this->user, $this->course, $this->section);
 

@@ -30,7 +30,14 @@ namespace tool_moodlenet;
  * @package    tool_moodlenet
  * @copyright  2020 Adrian Greeve <adrian@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @deprecated since Moodle 5.2 MDL-87351
+ * @todo MDL-87562 This class will be removed in Moodle 6.0
  */
+#[\core\attribute\deprecated(
+    since: '5.2',
+    mdl: 'MDL-87351',
+    reason: 'MoodleNet inbound sharing functionality has been deprecated.'
+)]
 class moodlenet_user_profile {
 
     /** @var string $profile The full profile name. */
@@ -50,8 +57,10 @@ class moodlenet_user_profile {
      *
      * @param string $userprofile The moodle net user profile string.
      * @param int $userid The user ID that this profile belongs to.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function __construct(string $userprofile, int $userid) {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         $this->profile = $userprofile;
         $this->userid = $userid;
 
@@ -73,8 +82,11 @@ class moodlenet_user_profile {
      * Get the full moodle net profile.
      *
      * @return string The moodle net profile.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_profile_name(): string {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         return $this->profile;
     }
 
@@ -82,8 +94,11 @@ class moodlenet_user_profile {
      * Get the user ID that this profile belongs to.
      *
      * @return int The user ID.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_userid(): int {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         return $this->userid;
     }
 
@@ -91,8 +106,11 @@ class moodlenet_user_profile {
      * Get the username for this profile.
      *
      * @return string The username.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_username(): string {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         return $this->username;
     }
 
@@ -100,8 +118,11 @@ class moodlenet_user_profile {
      * Get the domain for this profile.
      *
      * @return string The domain.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_domain(): string {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         return $this->domain;
     }
 }

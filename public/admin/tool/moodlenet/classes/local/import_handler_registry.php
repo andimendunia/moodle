@@ -32,7 +32,14 @@ use core_course\dndupload_handler;
  *
  * @copyright 2020 Jake Dallimore <jrhdallimore@gmail.com>
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @deprecated since Moodle 5.2 MDL-87351
+ * @todo MDL-87562 This class will be removed in Moodle 6.0
  */
+#[\core\attribute\deprecated(
+    since: '5.2',
+    mdl: 'MDL-87351',
+    reason: 'MoodleNet inbound sharing functionality has been deprecated.'
+)]
 class import_handler_registry {
 
     /**
@@ -70,8 +77,10 @@ class import_handler_registry {
      *
      * @param \stdClass $course the course, which impacts available handlers.
      * @param \stdClass $user the user, which impacts available handlers.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function __construct(\stdClass $course, \stdClass $user) {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
         $this->course = $course;
         $this->user = $user;
         $this->context = \context_course::instance($course->id);
@@ -86,8 +95,11 @@ class import_handler_registry {
      * @param remote_resource $resource the remote resource.
      * @param import_strategy $strategy an import_strategy instance.
      * @return import_handler_info[] the array of import_handler_info handlers.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
     public function get_resource_handlers_for_strategy(remote_resource $resource, import_strategy $strategy): array {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         return $strategy->get_handlers($this->registry, $resource);
     }
 
@@ -98,9 +110,15 @@ class import_handler_registry {
      * @param string $modname the name of the module, e.g. 'label'.
      * @param import_strategy $strategy a string representing how to treat the resource. e.g. 'file', 'link'.
      * @return import_handler_info|null the import_handler_info object, if found, otherwise null.
+     * @deprecated since Moodle 5.2 MDL-87351
      */
-    public function get_resource_handler_for_mod_and_strategy(remote_resource $resource, string $modname,
-            import_strategy $strategy): ?import_handler_info {
+    public function get_resource_handler_for_mod_and_strategy(
+        remote_resource $resource,
+        string $modname,
+        import_strategy $strategy
+    ): ?import_handler_info {
+        \core\deprecation::emit_deprecation_if_present([self::class, __FUNCTION__]);
+
         foreach ($strategy->get_handlers($this->registry, $resource) as $handler) {
             if ($handler->get_module_name() === $modname) {
                 return $handler;
