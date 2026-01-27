@@ -41,11 +41,18 @@ final class remote_resource_test extends \advanced_testcase {
         $this->resetAfterTest();
 
         $remoteres = new remote_resource(new \curl(), new url($url), $metadata);
+        $this->assertdebuggingcalledcount(4);
 
-        $this->assertEquals(new url($url), $remoteres->get_url());
+        $retrievedurl = $remoteres->get_url();
+        $this->assertDebuggingCalled();
+        $this->assertEquals($url, $retrievedurl->get_value());
+        $this->assertDebuggingCalled();
         $this->assertEquals($metadata->name, $remoteres->get_name());
+        $this->assertDebuggingCalled();
         $this->assertEquals($metadata->description, $remoteres->get_description());
+        $this->assertDebuggingCalled();
         $this->assertEquals($expectedextension, $remoteres->get_extension());
+        $this->assertDebuggingCalled();
     }
 
     /**
@@ -89,6 +96,7 @@ final class remote_resource_test extends \advanced_testcase {
                 'description' => 'Some description'
             ]
         );
+        $this->assertdebuggingcalledcount(4);
         $nonexistentremoteres = new remote_resource(
             new \curl(),
             new url($nonexistenturl),
@@ -97,6 +105,7 @@ final class remote_resource_test extends \advanced_testcase {
                 'description' => 'Some description'
             ]
         );
+        $this->assertdebuggingcalledcount(4);
 
         // We need to handle size of -1 (missing "Content-Length" header), or where it is set and greater than zero.
         $this->assertThat(

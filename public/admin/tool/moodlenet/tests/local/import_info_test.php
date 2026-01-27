@@ -44,7 +44,9 @@ final class import_info_test extends \advanced_testcase {
                 'description' => 'Resource summary'
             ]
         );
+        $this->assertdebuggingcalledcount(4);
         $importinfo = new import_info($user->id, $resource, (object)[]);
+        $this->assertdebuggingcalledcount(3);
 
         return [$user, $resource, $importinfo];
     }
@@ -57,8 +59,11 @@ final class import_info_test extends \advanced_testcase {
         [$user, $resource, $importinfo] = $this->create_test_info();
 
         $this->assertEquals($resource, $importinfo->get_resource());
+        $this->assertDebuggingCalled();
         $this->assertEquals(new \stdClass(), $importinfo->get_config());
+        $this->assertDebuggingCalled();
         $this->assertNotEmpty($importinfo->get_id());
+        $this->assertDebuggingCalled();
     }
 
     /**
@@ -69,11 +74,14 @@ final class import_info_test extends \advanced_testcase {
         [$user, $resource, $importinfo] = $this->create_test_info();
 
         $config = $importinfo->get_config();
+        $this->assertDebuggingCalled();
         $this->assertEquals(new \stdClass(), $config);
         $config->course = 3;
         $config->section = 1;
         $importinfo->set_config($config);
+        $this->assertDebuggingCalled();
         $this->assertEquals((object) ['course' => 3, 'section' => 1], $importinfo->get_config());
+        $this->assertDebuggingCalled();
     }
 
     /**

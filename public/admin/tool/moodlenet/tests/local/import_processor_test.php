@@ -55,7 +55,9 @@ final class import_processor_test extends \advanced_testcase {
                 'description' => 'Resource description'
             ]
         );
+        $this->assertdebuggingcalledcount(4);
         $handlerregistry = new import_handler_registry($course, $teacher);
+        $this->assertDebuggingCalled();
         $handlerinfo = $handlerregistry->get_resource_handler_for_mod_and_strategy($remoteresource, 'resource',
             new import_strategy_file());
         $importproc = new import_processor($course, $section, $remoteresource, $handlerinfo, $handlerregistry);
@@ -102,7 +104,9 @@ final class import_processor_test extends \advanced_testcase {
                 'description' => 'Resource description'
             ]
         );
+        $this->assertdebuggingcalledcount(4);
         $handlerregistry = new import_handler_registry($course, $teacher);
+        $this->assertDebuggingCalled();
         $handlerinfo = $handlerregistry->get_resource_handler_for_mod_and_strategy($remoteresource, 'resource',
             new import_strategy_file());
         $importproc = new import_processor($course, $section, $remoteresource, $handlerinfo, $handlerregistry);
@@ -133,7 +137,9 @@ final class import_processor_test extends \advanced_testcase {
                 'description' => 'Resource description'
             ]
         );
+        $this->assertdebuggingcalledcount(4);
         $handlerregistry = new import_handler_registry($course, $teacher);
+        $this->assertDebuggingCalled();
         $handlerinfo = $handlerregistry->get_resource_handler_for_mod_and_strategy($remoteresource, 'url',
             new import_strategy_link());
         $importproc = new import_processor($course, $section, $remoteresource, $handlerinfo, $handlerregistry);

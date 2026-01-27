@@ -11,6 +11,7 @@ Feature: Web service user settings
       | text     | frog      | Favourite frog | 100    |
     And the following config values are set as admin:
       | showuseridentity | email,profile_field_frog |
+    And I disable "moodlenet" "tool" plugin
     And the following "users" exist:
       | username | firstname | lastname | email         | profile_field_frog |
       | user1    | User      | One      | 1@example.org | Kermit             |

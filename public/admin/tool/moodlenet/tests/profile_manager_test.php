@@ -31,6 +31,7 @@ final class profile_manager_test extends \advanced_testcase {
      */
     public function test_official_profile_exists(): void {
         $this->assertTrue(\tool_moodlenet\profile_manager::official_profile_exists());
+        $this->assertDebuggingCalled();
     }
 
     /**
@@ -41,6 +42,7 @@ final class profile_manager_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
 
         $result = \tool_moodlenet\profile_manager::get_moodlenet_user_profile($user->id);
+        $this->assertdebuggingcalledcount(3);
         $this->assertNull($result);
     }
 
@@ -54,6 +56,7 @@ final class profile_manager_test extends \advanced_testcase {
         $this->expectException(\moodle_exception::class);
         $this->expectExceptionMessage(get_string('invalidmoodlenetprofile', 'tool_moodlenet'));
         $result = new \tool_moodlenet\moodlenet_user_profile("", $user->id);
+        $this->assertDebuggingCalled();
     }
 
     /**
@@ -64,7 +67,9 @@ final class profile_manager_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user(['moodlenetprofile' => '@matt@hq.mnet']);
 
         $result = \tool_moodlenet\profile_manager::get_moodlenet_user_profile($user->id);
+        $this->assertdebuggingcalledcount(3);
         $this->assertEquals($user->moodlenetprofile, $result->get_profile_name());
+        $this->assertDebuggingCalled();
     }
 
     /**
@@ -77,18 +82,24 @@ final class profile_manager_test extends \advanced_testcase {
         $basecategoryname = get_string('pluginname', 'tool_moodlenet');
 
         \tool_moodlenet\profile_manager::create_user_profile_category();
+        $this->assertDebuggingCalled();
         $categoryname = \tool_moodlenet\profile_manager::get_category_name();
+        $this->assertDebuggingCalled();
         $this->assertEquals($basecategoryname, $categoryname);
         \tool_moodlenet\profile_manager::create_user_profile_category();
+        $this->assertDebuggingCalled();
 
         $recordcount = $DB->count_records('user_info_category', ['name' => $basecategoryname]);
         $this->assertEquals(1, $recordcount);
 
         // Test the duplication of categories to ensure a unique name is always used.
         $categoryname = \tool_moodlenet\profile_manager::get_category_name();
+        $this->assertDebuggingCalled();
         $this->assertEquals($basecategoryname . 1, $categoryname);
         \tool_moodlenet\profile_manager::create_user_profile_category();
+        $this->assertDebuggingCalled();
         $categoryname = \tool_moodlenet\profile_manager::get_category_name();
+        $this->assertDebuggingCalled();
         $this->assertEquals($basecategoryname . 2, $categoryname);
     }
 
@@ -102,7 +113,9 @@ final class profile_manager_test extends \advanced_testcase {
         $shortname = 'mnetprofile';
 
         $categoryid = \tool_moodlenet\profile_manager::create_user_profile_category();
+        $this->assertDebuggingCalled();
         \tool_moodlenet\profile_manager::create_user_profile_text_field($categoryid);
+        $this->assertDebuggingCalled();
 
         $record = $DB->get_record('user_info_field', ['shortname' => $shortname]);
         $this->assertEquals($shortname, $record->shortname);
@@ -110,10 +123,14 @@ final class profile_manager_test extends \advanced_testcase {
 
         // Test for a unique name if 'mnetprofile' is already in use.
         \tool_moodlenet\profile_manager::create_user_profile_text_field($categoryid);
+        $this->assertDebuggingCalled();
         $profilename = \tool_moodlenet\profile_manager::get_profile_field_name();
+        $this->assertDebuggingCalled();
         $this->assertEquals($shortname . 1, $profilename);
         \tool_moodlenet\profile_manager::create_user_profile_text_field($categoryid);
+        $this->assertDebuggingCalled();
         $profilename = \tool_moodlenet\profile_manager::get_profile_field_name();
+        $this->assertDebuggingCalled();
         $this->assertEquals($shortname . 2, $profilename);
     }
 
@@ -127,8 +144,10 @@ final class profile_manager_test extends \advanced_testcase {
         $profilename = '@matt@hq.mnet';
 
         $moodlenetprofile = new \tool_moodlenet\moodlenet_user_profile($profilename, $user->id);
+        $this->assertDebuggingCalled();
 
         \tool_moodlenet\profile_manager::save_moodlenet_user_profile($moodlenetprofile);
+        $this->assertdebuggingcalledcount(4);
 
         $userdata = \core_user::get_user($user->id);
         $this->assertEquals($profilename, $userdata->moodlenetprofile);
