@@ -666,4 +666,5 @@ $string['myisamproblem'] = 'Database tables are using MyISAM database engine, it
 // Deprecated since Moodle 5.0.
 $string['cannotdeletecategoryquestions'] = 'Could not delete questions from category \'{$a}\'';
 $string['errorsettinguserpref'] = 'Error setting user preference';
+$string['nohomepageoptions'] = 'No customizable homepage options are currently available. Please contact your site administrator.';
 $string['notallowedtoupdateprefremotely'] = 'You are not allowed to update this user preference remotely';

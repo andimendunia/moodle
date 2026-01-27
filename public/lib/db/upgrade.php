@@ -1670,5 +1670,16 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2026011600.01);
     }
 
+    if ($oldversion < 2026012600.01) {
+        // For existing sites, enable My Home by default to maintain current behavior.
+        // New installs will have it disabled (default 0 in settings).
+        $enablemyhome = get_config('core', 'enablemyhome');
+        if ($enablemyhome === false || $enablemyhome === null) {
+            set_config('enablemyhome', 1);
+        }
+
+        upgrade_main_savepoint(true, 2026012600.01);
+    }
+
     return true;
 }
