@@ -948,10 +948,28 @@ admin_externalpage_setup('adminnotifications');
 
 $output = $PAGE->get_renderer('core', 'admin');
 
-echo $output->admin_notifications_page($maturity, $insecuredataroot, $errorsdisplayed, $cronoverdue, $dbproblems,
-                                       $maintenancemode, $availableupdates, $availableupdatesfetch, $buggyiconvnomb,
-                                       $registered, $cachewarnings, $eventshandlers, $themedesignermode, $devlibdir,
-                                       $mobileconfigured, $overridetossl, $invalidforgottenpasswordurl, $croninfrequent,
-                                       $showcampaigncontent, $showfeedbackencouragement, $servicesandsupportcontent,
-                                       $xmlrpcwarning,
-                                       $moodlenetwarning);
+echo $output->admin_notifications_page(
+    $maturity,
+    $insecuredataroot,
+    $errorsdisplayed,
+    $cronoverdue,
+    $dbproblems,
+    $maintenancemode,
+    $availableupdates,
+    $availableupdatesfetch,
+    $buggyiconvnomb,
+    $registered,
+    $cachewarnings,
+    $eventshandlers,
+    $themedesignermode,
+    $devlibdir,
+    $mobileconfigured,
+    $overridetossl,
+    $invalidforgottenpasswordurl,
+    $croninfrequent,
+    $showcampaigncontent,
+    $showfeedbackencouragement,
+    $servicesandsupportcontent,
+    $xmlrpcwarning,
+    $moodlenetwarning
+);
