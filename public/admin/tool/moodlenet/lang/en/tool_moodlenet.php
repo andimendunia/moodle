@@ -60,6 +60,9 @@ $string['moodlenetnotenabled'] = 'The MoodleNet integration must be enabled in S
 $string['notification'] = 'You are about to import the content "{$a->name} ({$a->type})" into your site. Select the course in which it should be added, or <a href="{$a->cancellink}">cancel</a>.';
 $string['removedmnetprofilenotification'] = 'Due to recent changes on the MoodleNet platform, any users who previously saved their MoodleNet profile ID on the site will need to enter a MoodleNet profile ID in the new format in order to authenticate on the MoodleNet platform.';
 $string['removedmnetprofilenotification_subject'] = 'MoodleNet profile ID format change';
+$string['deprecationwarning_title'] = 'MoodleNet is being retired';
+$string['deprecationwarning_service'] = 'The MoodleNet service will be shut down on 24 April 2026. From that date, you will no longer be able to browse or add content from MoodleNet Central.';
+$string['deprecationwarning_feature'] = 'Following this, MoodleNet functionality will be entirely removed in Moodle 6.0.';
 $string['searchcourses'] = "Search courses";
 $string['selectpagetitle'] = 'Select page';
 $string['pluginname'] = 'MoodleNet';
