@@ -2453,5 +2453,38 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2025100603.01);
     }
 
+    if ($oldversion < 2025100603.05) {
+        // Clean up tool_moodlenet configurations unless pointing to a custom installation.
+        $moodleneturl = get_config('tool_moodlenet', 'defaultmoodlenet');
+
+        $shouldcleanup = true;
+
+        // Check if pointing to a custom MoodleNet installation.
+        if (!empty($moodleneturl)) {
+            $parsed = parse_url(strtolower(trim($moodleneturl)));
+            $host = $parsed['host'] ?? '';
+
+            // Don't cleanup if it's a custom installation (not moodle.net).
+            if ($host !== 'moodle.net' && $host !== 'www.moodle.net') {
+                $shouldcleanup = false;
+            }
+        }
+
+        if ($shouldcleanup) {
+            // Reset configs to defaults.
+            set_config('defaultmoodlenet', '', 'tool_moodlenet');
+            set_config('enablemoodlenet', 0, 'tool_moodlenet');
+
+            // Hide activity chooser footer if set to MoodleNet.
+            $footer = get_config('core', 'activitychooseractivefooter');
+            if ($footer === 'tool_moodlenet') {
+                set_config('activitychooseractivefooter', 'hidden');
+            }
+        }
+
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2025100603.05);
+    }
+
     return true;
 }
