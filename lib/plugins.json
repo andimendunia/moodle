@@ -496,7 +496,6 @@
             "mfa",
             "mobile",
             "monitor",
-            "moodlenet",
             "multilangupgrade",
             "oauth2",
             "phpunit",
@@ -701,6 +700,7 @@
             "bloglevelupgrade",
             "health",
             "innodb",
+            "moodlenet",
             "qeupgradehelper",
             "timezoneimport"
         ],

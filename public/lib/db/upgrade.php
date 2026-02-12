@@ -1787,5 +1787,21 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2026022700.02);
     }
 
+    if ($oldversion < 2026022700.04) {
+        // Remove tool_moodlenet if no longer present.
+        if (!file_exists($CFG->dirroot . '/admin/tool/moodlenet/version.php')) {
+            // Reset activity chooser footer if set to tool_moodlenet.
+            if (get_config('core', 'activitychooseractivefooter') === 'tool_moodlenet') {
+                set_config('activitychooseractivefooter', 'hidden');
+            }
+
+            // Uninstall the plugin.
+            uninstall_plugin('tool', 'moodlenet');
+        }
+
+        // Main savepoint reached.
+        upgrade_main_savepoint(true, 2026022700.04);
+    }
+
     return true;
 }
