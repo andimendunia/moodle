@@ -26,7 +26,7 @@ Feature: Run tests over my courses page
     And I am on the "My courses" page
     And I click on "Manage course categories" "button" in the "page-content" "region"
     And I should see "Manage course categories and courses"
-    # Check that the expected buttons are displayed in the header when the user is enrolled in a course.
+    # Check that the expected buttons are displayed in the block when the user is enrolled in a course.
     But the following "course" exists:
       | fullname  | Course 1 |
       | shortname | C1       |
@@ -36,18 +36,15 @@ Feature: Run tests over my courses page
       | course | C1      |
       | role   | student |
     And I am on the "My courses" page
-    And "Create course" "button" should exist in the "page-header" "region"
-    And "Manage courses" "button" should exist in the "page-header" "region"
-    And "Create course" "button" should not exist in the "page-content" "region"
-    And "Manage courses" "button" should not exist in the "page-content" "region"
-    And "Manage course categories" "button" should not exist in the "page-content" "region"
+    And "Create course" "button" should exist in the "Course overview" "block"
+    And "Manage courses" "button" should exist in the "Course overview" "block"
 
   Scenario: User without creating a course and managing category permissions cannot see any link
     When I am on the "My courses" page logged in as "user1"
     Then "Create course" "button" should not exist
     And "Manage courses" "button" should not exist
     And "Manage course categories" "button" should not exist
-    # Check that the same buttons are displayed in the header when the user is enrolled in a course.
+    # Check that the same buttons are not displayed in the block when the user is enrolled in a course.
     But the following "course" exists:
       | fullname  | Course 1 |
       | shortname | C1       |
@@ -69,7 +66,7 @@ Feature: Run tests over my courses page
     Then "Create course" "button" should not exist
     And "Manage courses" "button" should not exist
     And "Manage course categories" "button" should not exist
-    # Check that the same buttons are displayed in the header when the user is enrolled in a course.
+    # Check that the same buttons are not displayed in the block when the user is enrolled in a course.
     But the following "course" exists:
       | fullname  | Course 1 |
       | shortname | C1       |
@@ -91,11 +88,10 @@ Feature: Run tests over my courses page
     When I am on the "My courses" page logged in as "user1"
     Then "Create course" "button" should exist in the "page-content" "region"
     But "Manage course categories" "button" should not exist
-    And "Create course" "button" should not exist in the "page-header" "region"
     And I click on "Create course" "button"
     And I should see "Add a new course"
     And "CatA" "autocomplete_selection" should exist
-    # Check that the same buttons are displayed in the header when the user is enrolled in a course.
+    # Check that the same buttons are displayed in the block when the user is enrolled in a course.
     But the following "course" exists:
       | fullname  | Course 1 |
       | shortname | C1       |
@@ -105,9 +101,8 @@ Feature: Run tests over my courses page
       | course | C1      |
       | role   | student |
     And I am on the "My courses" page
-    And "Create course" "button" should exist in the "page-header" "region"
+    And "Create course" "button" should exist in the "Course overview" "block"
     And "Manage courses" "button" should not exist
-    And "Create course" "button" should not exist in the "page-content" "region"
 
   Scenario: User with managing a category permission can see the Manage course link only
     Given the following "permission overrides" exist:
@@ -118,7 +113,7 @@ Feature: Run tests over my courses page
     And "Create course" "button" should not exist
     And I click on "Manage course categories" "button" in the "page-content" "region"
     And I should see "Manage course categories and courses"
-    # Check that the same buttons are displayed in the header when the user is enrolled in a course.
+    # Check that the same buttons are displayed in the block when the user is enrolled in a course.
     But the following "course" exists:
       | fullname  | Course 1 |
       | shortname | C1       |
@@ -128,9 +123,8 @@ Feature: Run tests over my courses page
       | course | C1      |
       | role   | student |
     And I am on the "My courses" page
-    And "Manage courses" "button" should exist in the "page-header" "region"
+    And "Manage courses" "button" should exist in the "Course overview" "block"
     And "Create course" "button" should not exist
-    And "Manage courses" "button" should not exist in the "page-content" "region"
 
   @javascript
   Scenario: User with both creating a course and managing a category permission can see both links
@@ -141,15 +135,13 @@ Feature: Run tests over my courses page
     When I am on the "My courses" page logged in as "user1"
     Then "Create course" "button" should exist in the "page-content" "region"
     And "Manage course categories" "button" should exist in the "page-content" "region"
-    And "Create course" "button" should not exist in the "page-header" "region"
-    And "Manage courses" "button" should not exist in the "page-header" "region"
     And I click on "Create course" "button"
     And I should see "Add a new course"
     And "CatA" "autocomplete_selection" should exist
     And I am on the "My courses" page
     And I click on "Manage course categories" "button"
     And I should see "Manage course categories and courses"
-    # Check that the same buttons are displayed in the header when the user is enrolled in a course.
+    # Check that the same buttons are displayed in the block when the user is enrolled in a course.
     But the following "course" exists:
       | fullname  | Course 1 |
       | shortname | C1       |
@@ -159,10 +151,8 @@ Feature: Run tests over my courses page
       | course | C1      |
       | role   | student |
     And I am on the "My courses" page
-    And "Create course" "button" should exist in the "page-header" "region"
-    And "Manage courses" "button" should exist in the "page-header" "region"
-    And "Create course" "button" should not exist in the "page-content" "region"
-    And "Manage courses" "button" should not exist in the "page-content" "region"
+    And "Create course" "button" should exist in the "Course overview" "block"
+    And "Manage courses" "button" should exist in the "Course overview" "block"
 
   @javascript
   Scenario: Admin can see relevant blocks but not add or move them
@@ -197,8 +187,7 @@ Feature: Run tests over my courses page
     When I am on the "My courses" page logged in as "admin"
     Then "Create course" "button" should exist in the "page-content" "region"
     And "Request a course" "button" should not exist
-    And "Create course" "button" should not exist in the "page-header" "region"
-    # Check that the same buttons are displayed in the header when the user is enrolled in a course.
+    # Check that the same buttons are displayed in the block when the user is enrolled in a course.
     But the following "course" exists:
       | fullname  | Course 1 |
       | shortname | C1       |
@@ -208,9 +197,8 @@ Feature: Run tests over my courses page
       | course | C1      |
       | role   | student |
     And I am on the "My courses" page
-    And "Create course" "button" should exist in the "page-header" "region"
+    And "Create course" "button" should exist in the "Course overview" "block"
     And "Request a course" "button" should not exist
-    And "Create course" "button" should not exist in the "page-content" "region"
 
   Scenario: User without creating a course but with course request permission could see the Request course link
     Given the following "permission overrides" exist:
@@ -219,14 +207,12 @@ Feature: Run tests over my courses page
     When I am on the "My courses" page logged in as "user1"
     Then "Request a course" "button" should exist in the "page-content" "region"
     And "Create course" "button" should not exist in the "page-content" "region"
-    And "Create course" "button" should not exist in the "page-header" "region"
-    And "Request a course" "button" should not exist in the "page-header" "region"
     # Check the request a course button is not displayed when this feature is disabled.
     And the following config values are set as admin:
       | enablecourserequests | 0 |
     And I am on the "My courses" page logged in as "user1"
     And "Request a course" "button" should not exist
-    # Check that the same buttons are displayed in the header when the user is enrolled in a course.
+    # Check that the same buttons are displayed in the block when the user is enrolled in a course.
     But the following "course" exists:
       | fullname  | Course 1 |
       | shortname | C1       |
@@ -238,16 +224,15 @@ Feature: Run tests over my courses page
     And the following config values are set as admin:
       | enablecourserequests | 1 |
     And I am on the "My courses" page
-    And "Request a course" "button" should exist in the "page-header" "region"
+    And "Request a course" "button" should exist in the "Course overview" "block"
     And "Create course" "button" should not exist
-    And "Request a course" "button" should not exist in the "page-content" "region"
 
   Scenario: User without creating nor course request permission shouldn't see any Request course link
     Given I am on the "My courses" page logged in as "user1"
     Then "Request a course" "button" should not exist in the "page-content" "region"
     And "Create course" "button" should not exist in the "page-content" "region"
     And "Manage courses" "button" should not exist in the "page-content" "region"
-    # Check that the same buttons are displayed in the header when the user is enrolled in a course.
+    # Check that the same buttons are not displayed in the block when the user is enrolled in a course.
     But the following "course" exists:
       | fullname  | Course 1 |
       | shortname | C1       |
