@@ -19,8 +19,6 @@ namespace auth_oauth2;
 use advanced_testcase;
 use core\clock;
 use core\di;
-use DateInterval;
-use DateInvalidOperationException;
 use dml_exception;
 use Generator;
 use PHPUnit\Framework\Attributes\CoversFunction;
@@ -40,15 +38,17 @@ final class linked_login_test extends advanced_testcase {
     /**
      * Expired confirmation tokens are deleted
      *
-     * @param int $expirydate
+     * @param int $offset Seconds relative to now (negative = past, positive = future)
      * @param int $expected
      * @return void
      * @throws dml_exception
      */
     #[DataProvider('expirydate_provider')]
-    public function test_delete_expired_confirmation_tokens(int $expirydate, int $expected): void {
+    public function test_delete_expired_confirmation_tokens(int $offset, int $expected): void {
         $this->resetAfterTest();
         global $DB, $USER;
+
+        $expirydate = di::get(clock::class)->now()->getTimestamp() + $offset;
 
         $DB->insert_record(
             linked_login::TABLE,
@@ -72,15 +72,14 @@ final class linked_login_test extends advanced_testcase {
      * Expiry dates provider
      *
      * @return Generator
-     * @throws DateInvalidOperationException
      */
     public static function expirydate_provider(): Generator {
         yield 'expired' => [
-            'expirydate' => di::get(clock::class)->now()->sub(new DateInterval('PT1M'))->getTimestamp(),
+            'offset' => -60,    // 1 minute in the past
             'expected' => 0,
         ];
         yield 'not yet expired' => [
-            'expirydate' => di::get(clock::class)->now()->add(new DateInterval('PT29M'))->getTimestamp(),
+            'offset' => 1740,   // 29 minutes in the future
             'expected' => 1,
         ];
     }
