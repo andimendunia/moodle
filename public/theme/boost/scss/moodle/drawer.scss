@@ -13,13 +13,19 @@ $drawer-shadow-color: rgba(0, 0, 0, .25) !default;
 
 $drawer-main-gap: calc(0.5rem + 20px);
 $drawer-anchor-none: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-main-gap});
-$drawer-anchor-left-open: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-main-gap} - #{$drawer-left-width} / 2);
+$drawer-anchor-left-open: calc(100% - #{$drawer-left-width});
 $drawer-right-anchor-left-open: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-main-gap} + #{$drawer-left-width} / 2);
 $drawer-anchor-right-open: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-main-gap} + #{$drawer-right-width} / 2);
-$drawer-right-anchor-right-open: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-main-gap} - #{$drawer-right-width} / 2);
-$drawer-anchor-both-offset: calc((#{$drawer-right-width} - #{$drawer-left-width}) / 2);
-$drawer-anchor-both-left: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-main-gap} + #{$drawer-anchor-both-offset});
-$drawer-anchor-both-right: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-main-gap} - #{$drawer-anchor-both-offset});
+$drawer-right-anchor-right-open: calc(100% - #{$drawer-right-width});
+// lg+: both drawers open — anchor formula clamped so drawers don't clip the viewport.
+// min() picks the smaller: anchor (gap from main) OR flush to viewport edge.
+$drawer-both-left-anchor: calc(50% + #{$course-content-maxwidth} / 2 + (#{$drawer-right-width} - #{$drawer-left-width}) / 2 + #{$drawer-main-gap});
+$drawer-both-right-anchor: calc(50% + #{$course-content-maxwidth} / 2 + (#{$drawer-left-width} - #{$drawer-right-width}) / 2 + #{$drawer-main-gap});
+$drawer-anchor-both-left: min(#{$drawer-both-left-anchor}, calc(100% - #{$drawer-left-width}));
+$drawer-anchor-both-right: min(#{$drawer-both-right-anchor}, calc(100% - #{$drawer-right-width}));
+// xxl: single drawer open — drawer anchored to main-inner edge, accounting for one margin.
+$drawer-anchor-xxl-left-open: calc(50% + #{$course-content-maxwidth} / 2 - #{$drawer-left-width} / 2 + #{$drawer-main-gap});
+$drawer-anchor-xxl-right-open: calc(50% + #{$course-content-maxwidth} / 2 - #{$drawer-right-width} / 2 + #{$drawer-main-gap});
 
 :target,
 :focus {
@@ -349,12 +355,54 @@ $right-drawer-width: 320px;
                 }
             }
         }
+
+        // Both drawers open: anchor to main-inner edges, clamped so drawers don't clip the viewport.
+        &:has(#page.drawers.show-drawer-left.show-drawer-right) {
+            .drawer.drawer-left {
+                right: $drawer-anchor-both-left;
+
+                &.show {
+                    right: $drawer-anchor-both-left;
+                }
+            }
+
+            .drawer.drawer-right {
+                left: $drawer-anchor-both-right;
+
+                &.show {
+                    left: $drawer-anchor-both-right;
+                }
+            }
+        }
     }
 }
 
 @include media-breakpoint-up(xxl) {
     .pagelayout-standard,
     body.limitedwidth {
+        // Single right drawer open: anchor to main-inner edge (shifted by right margin).
+        &:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) {
+            .drawer.drawer-right {
+                left: $drawer-anchor-xxl-right-open;
+
+                &.show {
+                    left: $drawer-anchor-xxl-right-open;
+                }
+            }
+        }
+
+        // Single left drawer open: anchor to main-inner edge (shifted by left margin).
+        &:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) {
+            .drawer.drawer-left {
+                right: $drawer-anchor-xxl-left-open;
+
+                &.show {
+                    right: $drawer-anchor-xxl-left-open;
+                }
+            }
+        }
+
+        // Both drawers open: anchor each drawer to the main-inner edge (shifted by both margins).
         &:has(#page.drawers.show-drawer-left.show-drawer-right) {
             .drawer.drawer-left {
                 right: $drawer-anchor-both-left;
