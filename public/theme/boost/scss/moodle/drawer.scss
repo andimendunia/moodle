@@ -11,6 +11,16 @@ $drawer-bg-color: $gray-100 !default;
 $drawer-scroll-bg-track: $gray-100 !default;
 $drawer-shadow-color: rgba(0, 0, 0, .25) !default;
 
+$drawer-main-gap: calc(0.5rem + 20px);
+$drawer-anchor-none: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-main-gap});
+$drawer-anchor-left-open: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-main-gap} - #{$drawer-left-width} / 2);
+$drawer-right-anchor-left-open: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-main-gap} + #{$drawer-left-width} / 2);
+$drawer-anchor-right-open: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-main-gap} + #{$drawer-right-width} / 2);
+$drawer-right-anchor-right-open: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-main-gap} - #{$drawer-right-width} / 2);
+$drawer-anchor-both-offset: calc((#{$drawer-right-width} - #{$drawer-left-width}) / 2);
+$drawer-anchor-both-left: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-main-gap} + #{$drawer-anchor-both-offset});
+$drawer-anchor-both-right: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-main-gap} - #{$drawer-anchor-both-offset});
+
 :target,
 :focus {
     scroll-margin-top: $fixed-header-y + 10px;
@@ -252,6 +262,114 @@ $right-drawer-width: 320px;
 
         &.not-initialized {
             display: block;
+        }
+    }
+
+    .pagelayout-standard,
+    body.limitedwidth {
+        // Anchored drawers sit below the sticky footer, so they don't cover it.
+        .drawer.drawer-left,
+        .drawer.drawer-right {
+            z-index: map-get($zindex-levels, 2);
+        }
+
+        .drawer.drawer-left {
+            left: auto;
+            right: $drawer-anchor-none;
+            width: 0;
+            min-width: 0;
+            max-width: $drawer-left-width;
+            overflow: clip;
+            overscroll-behavior: none;
+            @include transition(width 0.2s ease, right 0.2s ease, visibility 0.2s ease);
+
+            &.show {
+                left: auto;
+                right: $drawer-anchor-none;
+                width: $drawer-left-width;
+            }
+
+            &:not(.show) .drawercontent {
+                overflow-y: hidden;
+            }
+        }
+
+        .drawer.drawer-right {
+            right: auto;
+            left: $drawer-anchor-none;
+            width: $drawer-right-width;
+            min-width: 0;
+            max-width: $drawer-right-width;
+            clip-path: inset(0 100% 0 0);
+            overscroll-behavior: none;
+            @include transition(clip-path 0.2s ease, left 0.2s ease, visibility 0.2s ease);
+
+            &.show {
+                right: auto;
+                left: $drawer-anchor-none;
+                width: $drawer-right-width;
+                clip-path: inset(0 0 0 0);
+            }
+
+            &:not(.show) .drawercontent {
+                overflow-y: hidden;
+            }
+        }
+
+        &:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) {
+            .drawer.drawer-left {
+                right: $drawer-anchor-left-open;
+
+                &.show {
+                    right: $drawer-anchor-left-open;
+                }
+            }
+            .drawer.drawer-right {
+                left: $drawer-right-anchor-left-open;
+
+                &.show {
+                    left: $drawer-right-anchor-left-open;
+                }
+            }
+        }
+
+        &:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) {
+            .drawer.drawer-left {
+                right: $drawer-anchor-right-open;
+
+                &.show {
+                    right: $drawer-anchor-right-open;
+                }
+            }
+            .drawer.drawer-right {
+                left: $drawer-right-anchor-right-open;
+
+                &.show {
+                    left: $drawer-right-anchor-right-open;
+                }
+            }
+        }
+    }
+}
+
+@include media-breakpoint-up(xxl) {
+    .pagelayout-standard,
+    body.limitedwidth {
+        &:has(#page.drawers.show-drawer-left.show-drawer-right) {
+            .drawer.drawer-left {
+                right: $drawer-anchor-both-left;
+
+                &.show {
+                    right: $drawer-anchor-both-left;
+                }
+            }
+            .drawer.drawer-right {
+                left: $drawer-anchor-both-right;
+
+                &.show {
+                    left: $drawer-anchor-both-right;
+                }
+            }
         }
     }
 }
