@@ -17,6 +17,7 @@
 namespace aiprovider_anthropic\form;
 
 use aiprovider_anthropic\abstract_processor;
+use aiprovider_anthropic\helper;
 
 /**
  * Generate text action provider settings form for the Anthropic Claude provider.
@@ -32,7 +33,7 @@ class action_generate_text_form extends action_form {
         $mform = $this->_form;
 
         // Model chooser.
-        $defaultmodel = $this->actionconfig['model'] ?? 'claude-sonnet-4-5-20250929';
+        $defaultmodel = $this->actionconfig['model'] ?? helper::get_default_model();
         $mform->addElement(
             'select',
             'model',
@@ -56,26 +57,9 @@ class action_generate_text_form extends action_form {
         $mform->addRule('endpoint', null, 'required', null, 'client');
         $mform->setDefault('endpoint', $defaultendpoint);
 
-        // Max tokens.
-        $mform->addElement(
-            'text',
-            'max_tokens',
-            get_string('settings_max_tokens', 'aiprovider_anthropic'),
-        );
-        $mform->setType('max_tokens', PARAM_INT);
-        $mform->setDefault('max_tokens', $this->actionconfig['max_tokens'] ?? 8096);
-        $mform->addRule('max_tokens', null, 'required', null, 'client');
-        $mform->addHelpButton('max_tokens', 'settings_max_tokens', 'aiprovider_anthropic');
-
-        // Temperature.
-        $mform->addElement(
-            'text',
-            'temperature',
-            get_string('settings_temperature', 'aiprovider_anthropic'),
-        );
-        $mform->setType('temperature', PARAM_FLOAT);
-        $mform->setDefault('temperature', $this->actionconfig['temperature'] ?? '');
-        $mform->addHelpButton('temperature', 'settings_temperature', 'aiprovider_anthropic');
+        // Max tokens and temperature are added via after_ai_action_settings_form_hook,
+        // delegating to the selected model class (see hook_listener::
+        // set_model_form_definition_for_aiprovider_anthropic()).
 
         // System instruction.
         $mform->addElement(

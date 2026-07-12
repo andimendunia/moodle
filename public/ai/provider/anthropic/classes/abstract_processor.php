@@ -53,7 +53,8 @@ abstract class abstract_processor extends process_base {
      * @return string
      */
     protected function get_model(): string {
-        return $this->provider->actionconfig[$this->action::class]['settings']['model'];
+        return $this->provider->actionconfig[$this->action::class]['settings']['model']
+            ?? helper::get_default_model();
     }
 
     /**
@@ -64,7 +65,7 @@ abstract class abstract_processor extends process_base {
     protected function get_model_settings(): array {
         $settings = $this->provider->actionconfig[$this->action::class]['settings'];
         $modelsettings = [];
-        if (!empty($settings['max_tokens'])) {
+        if (isset($settings['max_tokens']) && $settings['max_tokens'] !== '') {
             $modelsettings['max_tokens'] = (int) $settings['max_tokens'];
         }
         if (isset($settings['temperature']) && $settings['temperature'] !== '') {
@@ -131,21 +132,9 @@ abstract class abstract_processor extends process_base {
      */
     protected function handle_api_error(ResponseInterface $response): array {
         $status = $response->getStatusCode();
-        $reason = $response->getReasonPhrase();
-
-        if ($status >= 500 && $status < 600) {
-            return \core_ai\error\factory::create($status, $reason)->get_error_details();
-        }
-
         $bodyobj = json_decode($response->getBody()->getContents());
-        $errormessage = $bodyobj->error->message ?? $reason;
-        $errortype = $bodyobj->error->type ?? null;
+        $errormessage = $bodyobj->error->message ?? $response->getReasonPhrase();
 
-        return [
-            'success' => false,
-            'errorcode' => $status,
-            'errormessage' => $errormessage,
-            'error' => $errortype,
-        ];
+        return \core_ai\error\factory::create($status, $errormessage)->get_error_details();
     }
 }

@@ -16,6 +16,8 @@
 
 namespace aiprovider_anthropic;
 
+use aiprovider_anthropic\aimodel\abstract_claude_model;
+use core_ai\hook\after_ai_action_settings_form_hook;
 use core_ai\hook\after_ai_provider_form_hook;
 
 /**
@@ -48,5 +50,34 @@ class hook_listener {
         );
         $mform->addHelpButton('apikey', 'apikey', 'aiprovider_anthropic');
         $mform->addRule('apikey', get_string('required'), 'required', null, 'client');
+    }
+
+    /**
+     * Hook listener for the Anthropic AI action settings form.
+     *
+     * Delegates the shared max_tokens/temperature fields to the selected model class.
+     *
+     * @param after_ai_action_settings_form_hook $hook The hook to add to config action settings.
+     */
+    public static function set_model_form_definition_for_aiprovider_anthropic(after_ai_action_settings_form_hook $hook): void {
+        if ($hook->plugin !== 'aiprovider_anthropic') {
+            return;
+        }
+
+        $mform = $hook->mform;
+        if (!isset($mform->_elementIndex['model'])) {
+            return;
+        }
+
+        $model = $mform->getElementValue('model');
+        if (is_array($model)) {
+            $model = $model[0];
+        }
+
+        $targetmodel = helper::get_model_class($model);
+        if ($targetmodel instanceof abstract_claude_model && $targetmodel->has_model_settings()) {
+            $mform->addElement('header', 'modelsettingsheader', get_string('settings', 'aiprovider_anthropic'));
+            $targetmodel->add_model_settings($mform);
+        }
     }
 }

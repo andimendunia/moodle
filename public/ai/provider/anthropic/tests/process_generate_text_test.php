@@ -133,6 +133,24 @@ final class process_generate_text_test extends \advanced_testcase {
     }
 
     /**
+     * Test create_request_object preserves an explicit max_tokens of 0 rather than falling back to the default.
+     */
+    public function test_create_request_object_with_zero_max_tokens(): void {
+        $provider = $this->create_provider(
+            actionclass: \core_ai\aiactions\generate_text::class,
+            actionconfig: [
+                'max_tokens' => '0',
+            ],
+        );
+        $processor = new process_generate_text($provider, $this->action);
+        $method = new \ReflectionMethod($processor, 'create_request_object');
+        $request = $method->invoke($processor, 1);
+
+        $body = json_decode($request->getBody()->getContents());
+        $this->assertEquals(0, $body->max_tokens);
+    }
+
+    /**
      * Test handle_api_success correctly parses an Anthropic response.
      */
     public function test_handle_api_success(): void {
@@ -153,6 +171,52 @@ final class process_generate_text_test extends \advanced_testcase {
         $this->assertEquals(18, $result['prompttokens']);
         $this->assertEquals(120, $result['completiontokens']);
         $this->assertEquals('claude-sonnet-4-5-20250929', $result['model']);
+    }
+
+    /**
+     * Test handle_api_success returns an error when the response has no usable text content.
+     */
+    public function test_handle_api_success_no_content(): void {
+        $processor = new process_generate_text($this->provider, $this->action);
+        $method = new \ReflectionMethod($processor, 'handle_api_success');
+
+        $response = new Response(
+            200,
+            ['Content-Type' => 'application/json'],
+            json_encode([
+                'id' => 'msg_01XFDUDYJgAACzvnptvVoYEL',
+                'content' => [],
+                'stop_reason' => 'refusal',
+                'usage' => ['input_tokens' => 5, 'output_tokens' => 0],
+            ]),
+        );
+
+        $result = $method->invoke($processor, $response);
+        $this->assertFalse($result['success']);
+        $this->assertStringContainsString('refusal', $result['errormessage']);
+    }
+
+    /**
+     * Test handle_api_success returns an error when the first content block is not text.
+     */
+    public function test_handle_api_success_non_text_content(): void {
+        $processor = new process_generate_text($this->provider, $this->action);
+        $method = new \ReflectionMethod($processor, 'handle_api_success');
+
+        $response = new Response(
+            200,
+            ['Content-Type' => 'application/json'],
+            json_encode([
+                'id' => 'msg_01XFDUDYJgAACzvnptvVoYEL',
+                'content' => [['type' => 'tool_use', 'id' => 'toolu_1', 'name' => 'lookup', 'input' => []]],
+                'stop_reason' => 'tool_use',
+                'usage' => ['input_tokens' => 5, 'output_tokens' => 12],
+            ]),
+        );
+
+        $result = $method->invoke($processor, $response);
+        $this->assertFalse($result['success']);
+        $this->assertStringContainsString('tool_use', $result['errormessage']);
     }
 
     /**
@@ -181,12 +245,38 @@ final class process_generate_text_test extends \advanced_testcase {
         $this->assertFalse($result['success']);
         $this->assertEquals(401, $result['errorcode']);
         $this->assertEquals('invalid x-api-key', $result['errormessage']);
-        $this->assertEquals('authentication_error', $result['error']);
+        $this->assertEquals('401: ' . get_string('error:401', 'core_ai'), $result['error']);
 
         $result = $method->invoke($processor, $responses[429]);
         $this->assertFalse($result['success']);
         $this->assertEquals(429, $result['errorcode']);
-        $this->assertEquals('rate_limit_error', $result['error']);
+        $this->assertEquals('Rate limit exceeded for requests.', $result['errormessage']);
+        $this->assertEquals('429: ' . get_string('error:429', 'core_ai'), $result['error']);
+    }
+
+    /**
+     * Test handle_api_error parses the Anthropic error detail for 5xx responses too.
+     */
+    public function test_handle_api_error_server_with_body(): void {
+        $processor = new process_generate_text($this->provider, $this->action);
+        $method = new \ReflectionMethod($processor, 'handle_api_error');
+
+        $response = new Response(
+            529,
+            ['Content-Type' => 'application/json'],
+            json_encode([
+                'type' => 'error',
+                'error' => [
+                    'type' => 'overloaded_error',
+                    'message' => 'Overloaded, please retry.',
+                ],
+            ]),
+        );
+
+        $result = $method->invoke($processor, $response);
+        $this->assertFalse($result['success']);
+        $this->assertEquals(529, $result['errorcode']);
+        $this->assertEquals('Overloaded, please retry.', $result['errormessage']);
     }
 
     /**

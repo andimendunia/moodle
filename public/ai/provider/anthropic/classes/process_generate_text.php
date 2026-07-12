@@ -16,6 +16,7 @@
 
 namespace aiprovider_anthropic;
 
+use aiprovider_anthropic\aimodel\abstract_claude_model;
 use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -40,9 +41,13 @@ class process_generate_text extends abstract_processor {
         $requestobj = new \stdClass();
         $requestobj->model = $this->get_model();
 
-        // Max tokens is required by the Anthropic API; default to 8096 if not configured.
+        // Max tokens is required by the Anthropic API; default to the model's own default if not configured.
         $modelsettings = $this->get_model_settings();
-        $requestobj->max_tokens = $modelsettings['max_tokens'] ?? 8096;
+        $modelclass = helper::get_model_class($requestobj->model);
+        $defaultmaxtokens = ($modelclass instanceof abstract_claude_model)
+            ? $modelclass->get_default_max_tokens()
+            : abstract_claude_model::DEFAULT_MAX_TOKENS;
+        $requestobj->max_tokens = $modelsettings['max_tokens'] ?? $defaultmaxtokens;
 
         if (isset($modelsettings['temperature'])) {
             $requestobj->temperature = $modelsettings['temperature'];
@@ -83,12 +88,20 @@ class process_generate_text extends abstract_processor {
         $responsebody = json_decode($bodystring);
 
         $contentblock = $responsebody->content[0] ?? null;
+        if ($contentblock === null || $contentblock->type !== 'text' || $contentblock->text === '') {
+            $finishreason = $responsebody->stop_reason ?? 'unknown';
+            return \core_ai\error\factory::create(
+                422,
+                get_string('error:nocontent', 'aiprovider_anthropic', $finishreason),
+            )->get_error_details();
+        }
+
         $usage = $responsebody->usage;
 
         return [
             'success' => true,
             'id' => $responsebody->id,
-            'generatedcontent' => $contentblock->text ?? '',
+            'generatedcontent' => $contentblock->text,
             'finishreason' => $responsebody->stop_reason ?? 'unknown',
             'prompttokens' => $usage->input_tokens,
             'completiontokens' => $usage->output_tokens,

@@ -29,6 +29,20 @@ use MoodleQuickForm;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class abstract_claude_model extends base implements claude_base {
+    /** @var int The default max_tokens value used when a model does not override it. */
+    public const DEFAULT_MAX_TOKENS = 8096;
+
+    /**
+     * Get the default max_tokens value for this model.
+     *
+     * Models with a lower output ceiling can override this.
+     *
+     * @return int
+     */
+    public function get_default_max_tokens(): int {
+        return self::DEFAULT_MAX_TOKENS;
+    }
+
     #[\Override]
     public function get_model_settings(): array {
         return [
@@ -39,6 +53,7 @@ abstract class abstract_claude_model extends base implements claude_base {
                     'component' => 'aiprovider_anthropic',
                 ],
                 'type' => PARAM_INT,
+                'default' => $this->get_default_max_tokens(),
                 'help' => [
                     'identifier' => 'settings_max_tokens',
                     'component' => 'aiprovider_anthropic',
@@ -69,6 +84,10 @@ abstract class abstract_claude_model extends base implements claude_base {
                 get_string($setting['label']['identifier'], $setting['label']['component']),
             );
             $mform->setType($key, $setting['type']);
+            // Only apply the fallback default if a stored value has not already been merged in via set_data().
+            if (array_key_exists('default', $setting) && !array_key_exists($key, $mform->_defaultValues)) {
+                $mform->setDefault($key, $setting['default']);
+            }
             if (isset($setting['help'])) {
                 $mform->addHelpButton($key, $setting['help']['identifier'], $setting['help']['component']);
             }

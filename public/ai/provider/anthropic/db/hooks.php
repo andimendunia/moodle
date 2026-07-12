@@ -29,4 +29,9 @@ $callbacks = [
         'hook' => \core_ai\hook\after_ai_provider_form_hook::class,
         'callback' => \aiprovider_anthropic\hook_listener::class . '::set_form_definition_for_aiprovider_anthropic',
     ],
+
+    [
+        'hook' => \core_ai\hook\after_ai_action_settings_form_hook::class,
+        'callback' => \aiprovider_anthropic\hook_listener::class . '::set_model_form_definition_for_aiprovider_anthropic',
+    ],
 ];

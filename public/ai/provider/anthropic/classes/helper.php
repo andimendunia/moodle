@@ -26,6 +26,18 @@ use core_ai\aimodel\base;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class helper {
+    /** @var string The default Claude model name used when no model is configured. */
+    public const DEFAULT_MODEL = 'claude-sonnet-4-5-20250929';
+
+    /**
+     * Get the default Claude model name.
+     *
+     * @return string
+     */
+    public static function get_default_model(): string {
+        return self::DEFAULT_MODEL;
+    }
+
     /**
      * Get all Claude model classes.
      *
