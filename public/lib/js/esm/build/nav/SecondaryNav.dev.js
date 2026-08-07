@@ -228,7 +228,7 @@ function SecondaryNav({ items, morelabel, istablist }) {
   const itemsKey = items.map((item) => item.key).join(" ");
   const prevItemsKeyRef = useRef(itemsKey);
   useEffect(() => {
-    if (!istablist || !menuRef.current) {
+    if (!menuRef.current) {
       return void 0;
     }
     let cancelled = false;
@@ -241,7 +241,7 @@ function SecondaryNav({ items, morelabel, istablist }) {
     return () => {
       cancelled = true;
     };
-  }, [istablist]);
+  }, []);
   useLayoutEffect(() => {
     if (prevItemsKeyRef.current !== itemsKey) {
       prevItemsKeyRef.current = itemsKey;
@@ -314,8 +314,8 @@ function SecondaryNav({ items, morelabel, istablist }) {
   const visibleCount = Math.max(rest.length - autoOverflowCount, 0);
   const visible = rest.slice(0, visibleCount);
   const overflow = [...rest.slice(visibleCount), ...forced];
-  const itemRole = istablist ? "none" : void 0;
-  return /* @__PURE__ */ jsxDEV("ul", { ref: menuRef, className: "nav more-nav", role: istablist ? "tablist" : void 0, children: [
+  const itemRole = "none";
+  return /* @__PURE__ */ jsxDEV("ul", { ref: menuRef, className: "nav more-nav", role: istablist ? "tablist" : "menubar", children: [
     visible.map((item) => {
       const isSubmenuTrigger = item.showchildreninsubmenu && item.children.length > 0;
       return /* @__PURE__ */ jsxDEV(
@@ -329,7 +329,7 @@ function SecondaryNav({ items, morelabel, istablist }) {
         false,
         {
           fileName: "public/lib/js/esm/src/nav/SecondaryNav.tsx",
-          lineNumber: 489,
+          lineNumber: 494,
           columnNumber: 21
         },
         this
@@ -342,15 +342,15 @@ function SecondaryNav({ items, morelabel, istablist }) {
         className: `nav-item d-flex align-items-center dropdown dropdownmoremenu${overflow.length === 0 ? " d-none" : ""}`,
         children: /* @__PURE__ */ jsxDEV(PillDropdownToggle, { label: morelabel, selected: overflow.some(isNodeActive), istablist, children: /* @__PURE__ */ jsxDEV("div", { className: "dropdown-menu dropdown-menu-start", "data-region": "moredropdown", children: /* @__PURE__ */ jsxDEV(DropdownItems, { items: overflow, istablist }, void 0, false, {
           fileName: "public/lib/js/esm/src/nav/SecondaryNav.tsx",
-          lineNumber: 504,
+          lineNumber: 509,
           columnNumber: 25
         }, this) }, void 0, false, {
           fileName: "public/lib/js/esm/src/nav/SecondaryNav.tsx",
-          lineNumber: 503,
+          lineNumber: 508,
           columnNumber: 21
         }, this) }, void 0, false, {
           fileName: "public/lib/js/esm/src/nav/SecondaryNav.tsx",
-          lineNumber: 502,
+          lineNumber: 507,
           columnNumber: 17
         }, this)
       },
@@ -358,14 +358,14 @@ function SecondaryNav({ items, morelabel, istablist }) {
       false,
       {
         fileName: "public/lib/js/esm/src/nav/SecondaryNav.tsx",
-        lineNumber: 498,
+        lineNumber: 503,
         columnNumber: 13
       },
       this
     )
   ] }, void 0, true, {
     fileName: "public/lib/js/esm/src/nav/SecondaryNav.tsx",
-    lineNumber: 485,
+    lineNumber: 490,
     columnNumber: 9
   }, this);
 }

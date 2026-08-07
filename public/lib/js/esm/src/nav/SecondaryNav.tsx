@@ -361,11 +361,12 @@ export default function SecondaryNav({items, morelabel, istablist}: SecondaryNav
     const itemsKey = items.map((item) => item.key).join(' ');
     const prevItemsKeyRef = useRef(itemsKey);
 
-    // Keyboard arrow-key/Home/End navigation for the tablist, via the existing
-    // core/menu_navigation module. Bootstrap's data-bs-toggle="tab" API handles panel-switching
-    // separately.
+    // Keyboard arrow-key/Home/End navigation, via the existing core/menu_navigation module.
+    // Bootstrap's data-bs-toggle="tab"/"dropdown" APIs handle panel-switching/opening separately.
+    // Legacy moremenu.js called this unconditionally for every secondary nav, not just istablist
+    // ones: it's also what makes Space (not just Enter) activate a pill/menuitem.
     useEffect(() => {
-        if (!istablist || !menuRef.current) {
+        if (!menuRef.current) {
             return undefined;
         }
 
@@ -381,7 +382,7 @@ export default function SecondaryNav({items, morelabel, istablist}: SecondaryNav
         return () => {
             cancelled = true;
         };
-    }, [istablist]);
+    }, []);
 
     // Measures the real DOM after every commit (deliberately no dependency array) and nudges
     // autoOverflowCount by one step per pass until the split converges. Runs pre-paint, so
@@ -479,10 +480,14 @@ export default function SecondaryNav({items, morelabel, istablist}: SecondaryNav
     // Auto-collapsed items first, then always-forced ones, matching legacy moremenu.js ordering.
     const overflow = [...rest.slice(visibleCount), ...forced];
 
-    const itemRole = istablist ? 'none' : undefined;
+    // Matches secondarymoremenu.mustache's NonJS fallback: every <li> is role="none" regardless
+    // of istablist, and the <ul> itself is "menubar" rather than roleless when not a tablist, so
+    // that Behat helpers like behat_navigation::select_on_administration_page() (which look up
+    // //ul[@role='menubar']/li/a[...] for non-tablist secondary navs) keep working under JS.
+    const itemRole = 'none';
 
     return (
-        <ul ref={menuRef} className="nav more-nav" role={istablist ? 'tablist' : undefined}>
+        <ul ref={menuRef} className="nav more-nav" role={istablist ? 'tablist' : 'menubar'}>
             {visible.map((item) => {
                 const isSubmenuTrigger = item.showchildreninsubmenu && item.children.length > 0;
                 return (

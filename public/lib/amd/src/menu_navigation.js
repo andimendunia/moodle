@@ -152,10 +152,11 @@ const keyboardListenerEvents = e => {
         if (e.key == ' ' ||
             e.key == 'Enter') {
             e.preventDefault();
-            // Aria.js handles dropdowns etc.
-            if (!src.parentElement.classList.contains('dropdown')) {
-                src.click();
-            }
+            // The preventDefault() above suppresses the browser's native Enter-activates-link
+            // click, and Bootstrap's own dropdown keydown handler only opens on ArrowUp/ArrowDown/
+            // Escape, so this needs to fire the click itself for dropdown toggles too, not just
+            // plain items.
+            src.click();
         }
     }
 };

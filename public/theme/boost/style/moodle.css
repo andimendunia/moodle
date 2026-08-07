@@ -44240,8 +44240,21 @@ div.editor_atto_toolbar button .icon {
   height: 60px;
   opacity: 0;
 }
+.secondary-navigation .navigation.secondarynav-tabbar .more-nav {
+  gap: var(--mds-spacing-xs);
+}
 .secondary-navigation .navigation.secondarynav-tabbar .nav-item {
   height: 60px;
+}
+.secondary-navigation .navigation.secondarynav-tabbar .mds-nav-pill.dropdown-toggle:focus {
+  box-shadow: none;
+}
+.secondary-navigation .navigation.secondarynav-tabbar .mds-nav-pill.dropdown-toggle:focus-visible {
+  outline: var(--mds-stroke-weight-md) solid var(--mds-focus-default);
+  outline-offset: var(--mds-spacing-offset);
+}
+.secondary-navigation .navigation.secondarynav-tabbar .mds-nav-pill--selected:visited {
+  background-color: var(--mds-bg-nav-pill-selected);
 }
 .secondary-navigation .navigation.secondarynav-tabbar.secondarynav-measured {
   opacity: 1;
