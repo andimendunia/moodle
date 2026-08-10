@@ -111,7 +111,7 @@ function PillDropdownToggle({ label, selected, istablist = false, children }) {
         href: "#",
         id: toggleId,
         className: classes,
-        role: istablist ? "tab" : void 0,
+        role: istablist ? "tab" : "menuitem",
         "data-bs-toggle": "dropdown",
         "aria-haspopup": "true",
         "aria-expanded": "false",

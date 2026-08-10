@@ -205,12 +205,12 @@ function DropdownItems({items, istablist = false}: {items: SecondaryNavNode[]; i
  * @param props.label The visible label for the toggle.
  * @param props.selected Whether one of the dropdown's own items is currently active.
  * @param props.istablist Whether the toggle sits inside an `istablist` secondary nav. When true,
- *                        the toggle gets `role="tab"` to be a valid tablist child. When false, it
- *                        gets no role at all (rather than "menuitem"): the top-level `<ul>` has no
- *                        menubar/menu role in that mode (NavPill's plain links can't carry
- *                        role="menuitem"), so a menuitem-roled toggle there would have no valid
- *                        ARIA parent. `aria-haspopup`/`aria-expanded` alone are enough to convey
- *                        the disclosure/dropdown semantics.
+ *                        the toggle gets `role="tab"` to be a valid tablist child; when false it
+ *                        gets `role="menuitem"` to be a valid child of the top-level `<ul
+ *                        role="menubar">`. (NavPill's plain leaf items can't carry an explicit role
+ *                        themselves — @moodlehq/design-system's NavPillProps type omits it, and the
+ *                        component always sets its own — so core/menu_navigation falls back to
+ *                        treating any plain link in a menubar/tablist as navigable instead.)
  * @param props.children The dropdown menu to render alongside the toggle.
  * @returns The rendered dropdown toggle and menu.
  */
@@ -239,7 +239,7 @@ function PillDropdownToggle(
                 href="#"
                 id={toggleId}
                 className={classes}
-                role={istablist ? 'tab' : undefined}
+                role={istablist ? 'tab' : 'menuitem'}
                 data-bs-toggle="dropdown"
                 aria-haspopup="true"
                 aria-expanded="false"
