@@ -104,7 +104,7 @@ $divider-hover-color: $primary !default;
             }
 
             .section-content-inner {
-                padding: map-get($spacers, 2);
+                padding: $mds-spacing-md;
                 border-top: $border-width solid $gray-200;
                 background-color: $gray-100;
                 @include border-bottom-radius($activity-border-radius);
@@ -242,6 +242,7 @@ $divider-hover-color: $primary !default;
 
 .activity {
     list-style: none;
+    margin-top: $mds-spacing-md;
     &.indented {
         .activity-item {
             margin-left: map-get($spacers, 3);
@@ -259,10 +260,25 @@ $divider-hover-color: $primary !default;
 .activity-item {
     padding: $activity-item-padding;
     @include border-radius($activity-border-radius);
+
+    border: $border-width solid $mds-border-subtle;
+
+    background-color: $mds-bg-surface-subtle;
+
+    &:hover:not(:has(.delegated-section)) {
+        background-color: $mds-bg-surface-default;
+    }
+
+    &:focus-within:not(:has(.delegated-section)) {
+        outline: $activity-border-width solid $mds-border-interactive-primary-default;
+    }
+
     &.hiddenactivity {
-        background-color: $gray-200;
-        .activityiconcontainer {
-            mix-blend-mode: multiply;
+        .activity-name-area .activityname {
+            color: $mds-text-muted;
+            .aalink {
+                color: $mds-text-muted;
+            }
         }
         .badge {
             background-color: transparent;
@@ -270,7 +286,7 @@ $divider-hover-color: $primary !default;
             border: $border-width solid $gray-300;
         }
         .activity-altcontent.activity-description {
-            color: $gray-700;
+            color: $mds-text-muted;
         }
     }
     // Custom styles for activity cards while editing.
@@ -282,8 +298,6 @@ $divider-hover-color: $primary !default;
         // Add a border on hover to the activity card (avoiding hover effect in inner activities).
         &:hover:not(:has(.activity:hover)),
         &.selected {
-            // We use outline here to avoid changing the layout everytime we hover.
-            outline: $activity-border-width solid $activity-hover-border-color;
             .activityiconcontainer,
             .badge {
                 mix-blend-mode: multiply;
@@ -826,7 +840,8 @@ $divider-hover-color: $primary !default;
 
 .activity.subsection {
     > .activity-item {
-        padding: $activity-item-padding map-get($spacers, 2);
+        padding: 0;
+        border: 0;
 
         > .activity-grid > .activity-altcontent {
             margin-top: 0;
@@ -834,11 +849,6 @@ $divider-hover-color: $primary !default;
     }
     .section {
         margin-top: 0;
-        .icons-collapse-expand:has(+ h4) {
-            height: map-get($iconsizes, 4);
-            width: map-get($iconsizes, 4);
-            font-size: $font-size-sm;
-        }
         h4 {
             font-size: $h5-font-size;
         }
