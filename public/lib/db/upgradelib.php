@@ -2141,6 +2141,14 @@ function upgrade_migrate_classic_theme_to_boost(): void {
         if ($sourcevalue === false || $sourcevalue === $classicdefault) {
             continue;
         }
+        if ($setting === 'unaddableblocks') {
+            // Boost integrates navigation, settings and the course list into its own
+            // interface, so its default unaddable blocks must be kept unaddable
+            // regardless of the blocks configured in Classic.
+            $blocks = array_filter(array_map('trim', explode(',', $sourcevalue)));
+            $boostdefaults = ['navigation', 'settings', 'course_list'];
+            $sourcevalue = implode(',', array_unique(array_merge($blocks, $boostdefaults)));
+        }
         set_config($setting, $sourcevalue, 'theme_boost');
     }
 

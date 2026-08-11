@@ -1902,7 +1902,9 @@ calendar,core_calendar|/calendar/view.php?view=month',
 
         $this->assertEquals('boost', get_config('core', 'theme'));
 
-        $this->assertEquals('calendar_month,html', get_config('theme_boost', 'unaddableblocks'));
+        // The Classic value is migrated with the Boost default unaddable blocks appended.
+        $this->assertEquals('calendar_month,html,navigation,settings,course_list',
+            get_config('theme_boost', 'unaddableblocks'));
         $this->assertEquals('#112233', get_config('theme_boost', 'brandcolor'));
         $this->assertEquals('classicbackgroundvalue', get_config('theme_boost', 'backgroundimage'));
         $this->assertEquals('classicloginbackgroundvalue', get_config('theme_boost', 'loginbackgroundimage'));
