@@ -11,6 +11,10 @@ notes:
         clean-slate theme, previous Classic settings and course/user theme selections are not restored and have to
         be configured again manually.
 
+        The upgrade cannot change values forced in config.php: sites with $CFG->theme set to 'classic' there must
+        update or remove that line manually, otherwise the site keeps requesting the removed theme and falls back
+        to the default theme with a warning on every page.
+
         The migration copies the settings that were explicitly customised in Classic (unaddable blocks, brand colour,
         raw initial/pre SCSS, background and login background images) to Boost, keeping any existing Boost
         customisation where Classic held its default value. On sites where both themes had been customised, the
