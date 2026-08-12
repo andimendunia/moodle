@@ -35,4 +35,9 @@ class claudeopus45 extends abstract_claude_model {
     public function get_model_display_name(): string {
         return 'Claude Opus 4.5';
     }
+
+    #[\Override]
+    public function supports_temperature(): bool {
+        return true;
+    }
 }

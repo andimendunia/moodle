@@ -28,7 +28,7 @@ use MoodleQuickForm;
  * @copyright  2026 Matt Porritt <matt.porritt@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-abstract class abstract_claude_model extends base implements claude_base {
+abstract class abstract_claude_model extends base {
     /** @var int The default max_tokens value used when a model does not override it. */
     public const DEFAULT_MAX_TOKENS = 8096;
 
@@ -43,9 +43,25 @@ abstract class abstract_claude_model extends base implements claude_base {
         return self::DEFAULT_MAX_TOKENS;
     }
 
+    /**
+     * Whether this model accepts the temperature sampling parameter.
+     *
+     * Defaults to false: starting with Claude Opus 4.7, and spreading to Sonnet-class
+     * models from Claude Sonnet 5, newer Claude models reject temperature (and top_p/top_k)
+     * with a 400 error. This is an evolving, generation-wide restriction rather than a
+     * one-off exception, so an unverified or future model is more likely to reject it than
+     * accept it. Models confirmed to still accept temperature must explicitly override this
+     * to return true.
+     *
+     * @return bool
+     */
+    public function supports_temperature(): bool {
+        return false;
+    }
+
     #[\Override]
     public function get_model_settings(): array {
-        return [
+        $settings = [
             'max_tokens' => [
                 'elementtype' => 'text',
                 'label' => [
@@ -59,7 +75,10 @@ abstract class abstract_claude_model extends base implements claude_base {
                     'component' => 'aiprovider_anthropic',
                 ],
             ],
-            'temperature' => [
+        ];
+
+        if ($this->supports_temperature()) {
+            $settings['temperature'] = [
                 'elementtype' => 'text',
                 'label' => [
                     'identifier' => 'settings_temperature',
@@ -70,8 +89,10 @@ abstract class abstract_claude_model extends base implements claude_base {
                     'identifier' => 'settings_temperature',
                     'component' => 'aiprovider_anthropic',
                 ],
-            ],
-        ];
+            ];
+        }
+
+        return $settings;
     }
 
     #[\Override]

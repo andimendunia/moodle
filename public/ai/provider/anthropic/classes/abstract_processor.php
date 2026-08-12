@@ -16,6 +16,7 @@
 
 namespace aiprovider_anthropic;
 
+use aiprovider_anthropic\aimodel\abstract_claude_model;
 use core\http_client;
 use GuzzleHttp\Psr7\Uri;
 use core_ai\process_base;
@@ -68,7 +69,16 @@ abstract class abstract_processor extends process_base {
         if (isset($settings['max_tokens']) && $settings['max_tokens'] !== '') {
             $modelsettings['max_tokens'] = (int) $settings['max_tokens'];
         }
-        if (isset($settings['temperature']) && $settings['temperature'] !== '') {
+
+        $modelclass = helper::get_model_class($this->get_model());
+        $supportstemperature = !($modelclass instanceof abstract_claude_model) || $modelclass->supports_temperature();
+
+        // Guard against a temperature value stored under an earlier version of this plugin,
+        // before a given model was recognised as unsupported: a normal form save already
+        // clears an unsupported value going forward, but pre-existing stored config is not
+        // retroactively migrated. Some Claude models (Opus 4.7+, Sonnet 5+) reject temperature
+        // outright with a 400 error, so this must never be sent for those models.
+        if ($supportstemperature && isset($settings['temperature']) && $settings['temperature'] !== '') {
             $modelsettings['temperature'] = (float) $settings['temperature'];
         }
         return $modelsettings;
