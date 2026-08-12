@@ -66,10 +66,4 @@ class action_form extends action_settings_form {
         }
         return $models;
     }
-
-    #[\Override]
-    public function get_defaults(): array {
-        $data = parent::get_defaults();
-        return $data;
-    }
 }

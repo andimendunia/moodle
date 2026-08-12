@@ -65,7 +65,7 @@ class hook_listener {
         }
 
         $mform = $hook->mform;
-        if (!isset($mform->_elementIndex['model'])) {
+        if (!$mform->elementExists('model')) {
             return;
         }
 
