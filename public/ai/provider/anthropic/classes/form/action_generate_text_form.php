@@ -32,6 +32,9 @@ class action_generate_text_form extends action_form {
         parent::definition();
         $mform = $this->_form;
 
+        global $PAGE;
+        $PAGE->requires->js_call_amd('aiprovider_anthropic/modelchooser', 'init');
+
         // Model chooser.
         $defaultmodel = $this->actionconfig['model'] ?? helper::get_default_model();
         $mform->addElement(
@@ -39,6 +42,7 @@ class action_generate_text_form extends action_form {
             'model',
             get_string("action:{$this->actionname}:model", 'aiprovider_anthropic'),
             $this->get_model_list(),
+            ['data-modelchooser-field' => 'selector'],
         );
         $mform->setType('model', PARAM_TEXT);
         $mform->addRule('model', null, 'required', null, 'client');
@@ -86,6 +90,18 @@ class action_generate_text_form extends action_form {
 
         $mform->addElement('hidden', 'providerid', $this->providerid);
         $mform->setType('providerid', PARAM_INT);
+
+        // Hidden button the modelchooser JS clicks to resubmit the form when the model
+        // changes, so the per-model settings added by the after_ai_action_settings_form_hook
+        // (see hook_listener::set_model_form_definition_for_aiprovider_anthropic()) refresh
+        // to match the newly selected model.
+        $mform->registerNoSubmitButton('updateactionsettings');
+        $mform->addElement(
+            'submit',
+            'updateactionsettings',
+            'updateactionsettings',
+            ['data-modelchooser-field' => 'updateButton', 'class' => 'd-none'],
+        );
 
         $this->set_data($this->actionconfig);
     }
