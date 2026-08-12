@@ -220,6 +220,38 @@ final class process_generate_text_test extends \advanced_testcase {
     }
 
     /**
+     * Test handle_api_success extracts the text block when adaptive thinking places a
+     * thinking block ahead of it in the content array (e.g. Claude Sonnet 5, where adaptive
+     * thinking is on by default and Claude decides per-request whether to think first).
+     */
+    public function test_handle_api_success_with_leading_thinking_block(): void {
+        $processor = new process_generate_text($this->provider, $this->action);
+        $method = new \ReflectionMethod($processor, 'handle_api_success');
+
+        $response = new Response(
+            200,
+            ['Content-Type' => 'application/json'],
+            json_encode([
+                'id' => 'msg_01XFDUDYJgAACzvnptvVoYEL',
+                'content' => [
+                    ['type' => 'thinking', 'thinking' => 'Let me consider how best to explain this.', 'signature' => 'abc123'],
+                    ['type' => 'text', 'text' => 'Photosynthesis is the process plants use to convert light into energy.'],
+                ],
+                'stop_reason' => 'end_turn',
+                'model' => 'claude-sonnet-5',
+                'usage' => ['input_tokens' => 20, 'output_tokens' => 40],
+            ]),
+        );
+
+        $result = $method->invoke($processor, $response);
+        $this->assertTrue($result['success']);
+        $this->assertEquals(
+            'Photosynthesis is the process plants use to convert light into energy.',
+            $result['generatedcontent'],
+        );
+    }
+
+    /**
      * Test handle_api_error handles 5xx (server) errors.
      */
     public function test_handle_api_error_server(): void {

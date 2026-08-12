@@ -87,8 +87,18 @@ class process_generate_text extends abstract_processor {
         $bodystring = (string) $response->getBody();
         $responsebody = json_decode($bodystring);
 
-        $contentblock = $responsebody->content[0] ?? null;
-        if ($contentblock === null || $contentblock->type !== 'text' || $contentblock->text === '') {
+        // Find the first text block. On models with adaptive thinking (e.g. Claude Sonnet 5),
+        // Claude decides per-request whether to think, and thinking blocks are placed ahead of
+        // the text block in the content array — so the text block is not always content[0].
+        $textblock = null;
+        foreach ($responsebody->content ?? [] as $block) {
+            if (($block->type ?? null) === 'text' && ($block->text ?? '') !== '') {
+                $textblock = $block;
+                break;
+            }
+        }
+
+        if ($textblock === null) {
             $finishreason = $responsebody->stop_reason ?? 'unknown';
             return \core_ai\error\factory::create(
                 422,
@@ -101,7 +111,7 @@ class process_generate_text extends abstract_processor {
         return [
             'success' => true,
             'id' => $responsebody->id,
-            'generatedcontent' => $contentblock->text,
+            'generatedcontent' => $textblock->text,
             'finishreason' => $responsebody->stop_reason ?? 'unknown',
             'prompttokens' => $usage->input_tokens,
             'completiontokens' => $usage->output_tokens,
