@@ -37413,6 +37413,10 @@ body.drawer-ease {
   body.limitedwidth .drawer.drawer-right.show:has(.visually-hidden-focusable:focus) {
     clip-path: none;
   }
+  .pagelayout-standard .drawer.drawer-right.show:has(.dropdown-menu.show),
+  body.limitedwidth .drawer.drawer-right.show:has(.dropdown-menu.show) {
+    clip-path: none;
+  }
 }
 @media (min-width: 992px) {
   .pagelayout-standard .drawer.drawer-right:not(.show) .drawercontent,

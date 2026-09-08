@@ -1316,6 +1316,9 @@ class core_renderer extends renderer_base {
             $menu->set_owner_selector('#' . $blockid);
         }
         $menu->set_kebab_trigger(get_string('actionsmenu'), extraclasses: 'ms-1');
+        // Blocks can sit in the height-capped, scrollable block drawer, where an absolutely
+        // positioned menu is clipped and inflates the scroll area instead of being shown.
+        $menu->triggerattributes['data-bs-popper-config'] = json_encode(['strategy' => 'fixed']);
         $menu->attributes['class'] .= ' block-control-actions commands';
         return $this->render($menu);
     }

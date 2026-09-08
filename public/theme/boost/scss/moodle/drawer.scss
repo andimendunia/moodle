@@ -380,6 +380,13 @@ $right-drawer-width: 320px;
                 &:has(.visually-hidden-focusable:focus) {
                     clip-path: none;
                 }
+
+                // An open action menu is drawn outside this box, so the clip has to go for the same
+                // reason as the skip link above. This relies on the menu being positioned relative
+                // to the viewport, which core_renderer::block_controls asks Popper to do.
+                &:has(.dropdown-menu.show) {
+                    clip-path: none;
+                }
             }
 
             &:not(.show) .drawercontent {
