@@ -29610,7 +29610,7 @@ img.icon {
 @media (min-width: 576px) {
   .card-carousel .card {
     flex: 0 1 auto;
-    width: 240px;
+    width: 245px;
     max-width: 100%;
   }
 }
@@ -29624,7 +29624,6 @@ img.icon {
 
 .block_recentlyaccessedcourses .paging-bar-container {
   margin-top: -2.4rem;
-  padding-right: 0.5rem;
   justify-content: flex-end;
 }
 @media (max-width: 575.98px) {
