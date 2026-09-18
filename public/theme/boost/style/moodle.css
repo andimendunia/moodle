@@ -34520,6 +34520,9 @@ aside[id^=block-region-side-] .block_recentlyaccesseditems .card:nth-of-type(n+4
 .block_timeline .paged-content-page-container {
   background-color: var(--bs-body-bg);
 }
+.block_timeline .timeline-event-list-item {
+  background-color: var(--bs-card-bg);
+}
 
 .block_timeline .event-action {
   padding-left: 5.55em;

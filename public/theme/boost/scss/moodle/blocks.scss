@@ -292,6 +292,9 @@ $blocks-plus-gutter: calc(#{$blocks-column-width} + (#{$grid-gutter-width} * 0.5
     .paged-content-page-container {
         background-color: $list-group-bg;
     }
+    .timeline-event-list-item {
+        background-color: var(--#{$prefix}card-bg);
+    }
 }
 .block_timeline {
     .event-action {
