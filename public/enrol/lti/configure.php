@@ -29,8 +29,8 @@ use enrol_lti\local\ltiadvantage\lib\issuer_database;
 use enrol_lti\local\ltiadvantage\repository\application_registration_repository;
 use enrol_lti\local\ltiadvantage\repository\deployment_repository;
 use enrol_lti\local\ltiadvantage\repository\published_resource_repository;
+use Packback\Lti1p3\Claims\Claim;
 use Packback\Lti1p3\DeepLinkResources\Resource;
-use Packback\Lti1p3\LtiConstants;
 use Packback\Lti1p3\LtiLineitem;
 use Packback\Lti1p3\LtiMessageLaunch;
 use Packback\Lti1p3\LtiServiceConnector;
@@ -92,7 +92,7 @@ $PAGE->set_pagelayout('popup');
 echo $OUTPUT->header();
 $dl = $messagelaunch->getDeepLink();
 
-$formactionurl = $messagelaunch->getLaunchData()[LtiConstants::DL_DEEP_LINK_SETTINGS]['deep_link_return_url'];
+$formactionurl = $messagelaunch->getLaunchData()[Claim::DL_DEEP_LINK_SETTINGS]['deep_link_return_url'];
 echo <<<HTML
 <form id="auto_submit" action="{$formactionurl}" method="POST">
     <input type="hidden" name="JWT" value="{$messagelaunch->getDeepLink()->getResponseJwt($contentitems)}" />
