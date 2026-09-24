@@ -22,6 +22,49 @@ class LtiServiceConnector implements ILtiServiceConnector
         private Client $client
     ) {}
 
+    public static function getLogMessage(
+        IServiceRequest $request,
+        array $responseHeaders,
+        ?array $responseBody
+    ): string {
+        if ($request->getMaskResponseLogs()) {
+            $responseHeaders = self::maskValues($responseHeaders);
+            $responseBody = self::maskValues($responseBody);
+        }
+
+        $contextArray = [
+            'request_method' => $request->getMethod(),
+            'request_url' => $request->getUrl(),
+            'response_headers' => $responseHeaders,
+            'response_body' => $responseBody,
+        ];
+
+        $requestBody = $request->getPayload()['body'] ?? null;
+
+        if (isset($requestBody)) {
+            $contextArray['request_body'] = $requestBody;
+        }
+
+        return implode(' ', array_filter([
+            $request->getErrorPrefix(),
+            json_decode($requestBody)->userId ?? null,
+            json_encode($contextArray),
+        ]));
+    }
+
+    private static function maskValues(?array $payload): ?array
+    {
+        if (!isset($payload) || empty($payload)) {
+            return $payload;
+        }
+
+        foreach ($payload as $key => $value) {
+            $payload[$key] = '***';
+        }
+
+        return $payload;
+    }
+
     public function setDebuggingMode(bool $enable): self
     {
         $this->debuggingMode = $enable;
@@ -45,7 +88,7 @@ class LtiServiceConnector implements ILtiServiceConnector
         $jwtClaim = [
             'iss' => $clientId,
             'sub' => $clientId,
-            'aud' => $registration->getAuthServer(),
+            'aud' => [$registration->getAuthTokenUrl()],
             'iat' => time() - 5,
             'exp' => time() + 60,
             'jti' => 'lti-service-token'.hash('sha256', random_bytes(64)),
@@ -172,55 +215,12 @@ class LtiServiceConnector implements ILtiServiceConnector
         return $results;
     }
 
-    public static function getLogMessage(
-        IServiceRequest $request,
-        array $responseHeaders,
-        ?array $responseBody
-    ): string {
-        if ($request->getMaskResponseLogs()) {
-            $responseHeaders = self::maskValues($responseHeaders);
-            $responseBody = self::maskValues($responseBody);
-        }
-
-        $contextArray = [
-            'request_method' => $request->getMethod(),
-            'request_url' => $request->getUrl(),
-            'response_headers' => $responseHeaders,
-            'response_body' => $responseBody,
-        ];
-
-        $requestBody = $request->getPayload()['body'] ?? null;
-
-        if (isset($requestBody)) {
-            $contextArray['request_body'] = $requestBody;
-        }
-
-        return implode(' ', array_filter([
-            $request->getErrorPrefix(),
-            json_decode($requestBody)->userId ?? null,
-            json_encode($contextArray),
-        ]));
-    }
-
     private function logRequest(
         IServiceRequest $request,
         array $responseHeaders,
         ?array $responseBody
     ): void {
         error_log(self::getLogMessage($request, $responseHeaders, $responseBody));
-    }
-
-    private static function maskValues(?array $payload): ?array
-    {
-        if (!isset($payload) || empty($payload)) {
-            return $payload;
-        }
-
-        foreach ($payload as $key => $value) {
-            $payload[$key] = '***';
-        }
-
-        return $payload;
     }
 
     private function getAccessTokenCacheKey(ILtiRegistration $registration, array $scopes): string
