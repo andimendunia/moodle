@@ -488,6 +488,82 @@ final class externallib_test extends \core_external\tests\externallib_testcase {
     }
 
     /**
+     * A grade changing after an override must move the stored state between complete and
+     * complete-pass, in either direction, without ever undoing the override itself.
+     *
+     * @covers ::override_activity_completion_status
+     */
+    public function test_override_activity_completion_status_grade_changes_after_override(): void {
+        global $DB, $CFG;
+
+        $this->resetAfterTest(true);
+
+        $CFG->enablecompletion = true;
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+        $student = $this->getDataGenerator()->create_user();
+        $teacher = $this->getDataGenerator()->create_user();
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, $studentrole->id);
+        $teacherrole = $DB->get_record('role', ['shortname' => 'editingteacher']);
+        $this->getDataGenerator()->enrol_user($teacher->id, $course->id, $teacherrole->id);
+
+        /** @var \mod_assign_generator $assigngenerator */
+        $assigngenerator = $this->getDataGenerator()->get_plugin_generator('mod_assign');
+        $completion = new \completion_info($course);
+
+        $grade = function (\stdClass $cm, int $grade) use ($course, $student, $teacher): void {
+            $this->setUser($teacher);
+            $usercm = \cm_info::create($cm, $student->id);
+            $assign = new \assign($usercm->context, $cm, $course);
+            $assign->save_grade($student->id, (object) [
+                'sendstudentnotifications' => false,
+                'attemptnumber' => 1,
+                'grade' => $grade,
+            ]);
+        };
+
+        $assign = $assigngenerator->create_instance([
+            'course' => $course->id,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
+            'completionview' => 1,
+            'completionusegrade' => 1,
+            'completionpassgrade' => 1,
+            'gradepass' => 50,
+        ]);
+        $cm = get_coursemodule_from_instance('assign', $assign->id);
+
+        // Override to complete with no grade recorded yet.
+        $this->setUser($teacher);
+        core_completion_external::override_activity_completion_status(
+            $student->id,
+            $cm->id,
+            COMPLETION_COMPLETE
+        );
+        $data = $completion->get_data($cm, false, $student->id);
+        $this->assertEquals(COMPLETION_COMPLETE, $data->completionstate);
+        $this->assertEquals($teacher->id, $data->overrideby);
+
+        // A passing grade arrives afterwards: upgrades to complete-pass, override retained.
+        $grade($cm, 70);
+        $data = $completion->get_data($cm, false, $student->id);
+        $this->assertEquals(COMPLETION_COMPLETE_PASS, $data->completionstate);
+        $this->assertEquals($teacher->id, $data->overrideby);
+
+        // The grade later drops below passing: falls back to plain complete (never incomplete,
+        // never complete-fail), override still retained.
+        $grade($cm, 30);
+        $data = $completion->get_data($cm, false, $student->id);
+        $this->assertEquals(COMPLETION_COMPLETE, $data->completionstate);
+        $this->assertEquals($teacher->id, $data->overrideby);
+
+        // And a passing grade again: re-resolves to complete-pass, override still retained.
+        $grade($cm, 80);
+        $data = $completion->get_data($cm, false, $student->id);
+        $this->assertEquals(COMPLETION_COMPLETE_PASS, $data->completionstate);
+        $this->assertEquals($teacher->id, $data->overrideby);
+    }
+
+    /**
      * Test overriding the activity completion status as a user without the capability to do so.
      */
     public function test_override_status_user_without_capability(): void {
