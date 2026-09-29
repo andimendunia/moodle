@@ -640,9 +640,12 @@ class completion_info {
         // per the original override design (MDL-37361), only a COMPLETE-or-better override holds.
         $existingoverrideby = $current->overrideby;
         $keepoverrideby = false;
-        if ($cm->completion == COMPLETION_TRACKING_AUTOMATIC && !is_null($existingoverrideby)
-                && in_array($current->completionstate, [COMPLETION_COMPLETE, COMPLETION_COMPLETE_PASS])
-                && !$override) {
+        if (
+            $cm->completion == COMPLETION_TRACKING_AUTOMATIC &&
+            !is_null($existingoverrideby) &&
+            in_array($current->completionstate, [COMPLETION_COMPLETE, COMPLETION_COMPLETE_PASS]) &&
+            !$override
+        ) {
             $newstate = COMPLETION_COMPLETE;
             if (!is_null($cm->completiongradeitemnumber)) {
                 if ($cm instanceof stdClass) {
