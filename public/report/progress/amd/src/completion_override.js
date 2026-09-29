@@ -49,11 +49,11 @@ define(['jquery', 'core/ajax', 'core/str', 'core/modal_save_cancel', 'core/modal
          */
         var getStateSuffix = function(state) {
             switch (state) {
-                case 2:
+                case 2: // COMPLETION_COMPLETE_PASS.
                     return 'pass-override';
-                case 1:
+                case 1: // COMPLETION_COMPLETE.
                     return 'y-override';
-                default:
+                default: // COMPLETION_INCOMPLETE.
                     return 'n-override';
             }
         };
