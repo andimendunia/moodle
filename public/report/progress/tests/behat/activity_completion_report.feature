@@ -130,20 +130,20 @@ Feature: Teacher can view and override users' activity completion data via the p
     When I click on "my assignment 4" "link" in the "Ann, Jill, Grainne, Beauchamp" "table_row"
     And I click on "Save changes" "button"
     Then "Ann, Jill, Grainne, Beauchamp, my assignment 4: Completed (achieved pass grade, set by Teacher)" "icon" should exist in the "Ann, Jill, Grainne, Beauchamp" "table_row"
-    When I reload the page
-    Then "Ann, Jill, Grainne, Beauchamp, my assignment 4: Completed (achieved pass grade, set by Teacher)" "icon" should exist in the "Ann, Jill, Grainne, Beauchamp" "table_row"
+    And I reload the page
+    And "Ann, Jill, Grainne, Beauchamp, my assignment 4: Completed (achieved pass grade, set by Teacher)" "icon" should exist in the "Ann, Jill, Grainne, Beauchamp" "table_row"
 
     # The completed-with-pass override stays clickable after a reload - it can still be reverted.
-    When I click on "my assignment 4" "link" in the "Ann, Jill, Grainne, Beauchamp" "table_row"
+    And I click on "my assignment 4" "link" in the "Ann, Jill, Grainne, Beauchamp" "table_row"
     And I click on "Save changes" "button"
     And I reload the page
-    Then "Ann, Jill, Grainne, Beauchamp, my assignment 4: Not completed (set by Teacher)" "icon" should exist in the "Ann, Jill, Grainne, Beauchamp" "table_row"
+    And "Ann, Jill, Grainne, Beauchamp, my assignment 4: Not completed (set by Teacher)" "icon" should exist in the "Ann, Jill, Grainne, Beauchamp" "table_row"
 
     # And overriding again re-resolves the same passing grade.
-    When I click on "my assignment 4" "link" in the "Ann, Jill, Grainne, Beauchamp" "table_row"
+    And I click on "my assignment 4" "link" in the "Ann, Jill, Grainne, Beauchamp" "table_row"
     And I click on "Save changes" "button"
     And I reload the page
-    Then "Ann, Jill, Grainne, Beauchamp, my assignment 4: Completed (achieved pass grade, set by Teacher)" "icon" should exist in the "Ann, Jill, Grainne, Beauchamp" "table_row"
+    And "Ann, Jill, Grainne, Beauchamp, my assignment 4: Completed (achieved pass grade, set by Teacher)" "icon" should exist in the "Ann, Jill, Grainne, Beauchamp" "table_row"
 
   Scenario: Download button exist activity completion report.
     Given I am on the "Course 1" Course page logged in as teacher1
