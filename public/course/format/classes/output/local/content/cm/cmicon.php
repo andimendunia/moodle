@@ -42,6 +42,67 @@ class cmicon implements named_templatable, renderable {
 
     use courseformat_named_templatable;
 
+    /** @var string[] Module names with a design system ActivityIcon icon, indexed by module name. */
+    protected const DS_ICONS = [
+        'assign' => 'assignment',
+        'bigbluebuttonbn' => 'bigbluebutton',
+        'book' => 'book',
+        'chat' => 'chat',
+        'choice' => 'choice',
+        'data' => 'database',
+        'feedback' => 'feedback',
+        'folder' => 'folder',
+        'forum' => 'forum',
+        'glossary' => 'glossary',
+        'h5pactivity' => 'h5p',
+        'imscp' => 'ims-package',
+        'label' => 'text-and-media',
+        'lesson' => 'lesson',
+        'lti' => 'external-tool',
+        'page' => 'page',
+        'quiz' => 'quiz',
+        'scorm' => 'scorm-package',
+        'subsection' => 'subsection',
+        'survey' => 'survey',
+        'url' => 'url',
+        'wiki' => 'wiki',
+        'workshop' => 'workshop',
+    ];
+
+    /** @var string[] Design system ActivityIcon icons of the file activity, indexed by Moodle file type. */
+    protected const DS_FILE_ICONS = [
+        'archive' => 'file-archive',
+        'audio' => 'file-audio',
+        'calc' => 'file-spreadsheet',
+        'chart' => 'file-graphic',
+        'database' => 'file-database',
+        'document' => 'file-doc',
+        'draw' => 'file-draw',
+        'eps' => 'file-eps',
+        'epub' => 'file-epub',
+        'flash' => 'file-flash',
+        'gif' => 'file-gif',
+        'h5p' => 'file-h5p',
+        'image' => 'file-image',
+        'impress' => 'file-presentation',
+        'isf' => 'file-isf-flowchart',
+        'json' => 'file-json',
+        'markup' => 'file-code',
+        'math' => 'file-math',
+        'moodle' => 'file-moodle',
+        'oth' => 'file-oth',
+        'pdf' => 'file-pdf',
+        'powerpoint' => 'file-ppt',
+        'psd' => 'file-psd',
+        'publisher' => 'file-pub',
+        'sourcecode' => 'file-source-code',
+        'spreadsheet' => 'file-xls',
+        'text' => 'file-plain-text',
+        'unknown' => 'file-unknown',
+        'video' => 'file-video',
+        'writer' => 'file-text-editor',
+    ];
+
     /** @var course_format the course format */
     protected $format;
 
@@ -87,12 +148,38 @@ class cmicon implements named_templatable, renderable {
             'iconclass' => $iconclass,
             'modname' => $mod->modname,
             'pluginname' => get_string('pluginname', 'mod_' . $mod->modname),
-            'showtooltip' => $this->format->show_editor(),
+            'showlabel' => $this->format->show_editor(),
             'purpose' => plugin_supports('mod', $mod->modname, FEATURE_MOD_PURPOSE, MOD_PURPOSE_OTHER),
             'branded' => $isbranded,
         ];
 
+        $dsicon = $this->get_design_system_icon($iconurl);
+        if ($dsicon !== null) {
+            $data['reactprops'] = json_encode([
+                'icon' => $dsicon,
+                'alt' => '',
+                'container' => $this->format->show_editor() ? 'none' : 'default',
+                'size' => 'md',
+            ]);
+        }
+
         return $data;
+    }
+
+    /**
+     * Get the design system icon name of the activity.
+     *
+     * @param \moodle_url $iconurl the activity icon url
+     * @return string|null the design system icon name, or null when the design system has no icon for the activity
+     */
+    protected function get_design_system_icon(\moodle_url $iconurl): ?string {
+        if ($this->mod->modname === 'resource') {
+            // The icon of a file depends on its type, which is the "f/<type>" part of the icon path.
+            $path = $iconurl->get_path();
+            $filetype = preg_match('~/f/([a-z0-9_-]+)$~i', $path, $matches) ? strtolower($matches[1]) : '';
+            return static::DS_FILE_ICONS[$filetype] ?? 'file';
+        }
+        return static::DS_ICONS[$this->mod->modname] ?? null;
     }
 
     /**
