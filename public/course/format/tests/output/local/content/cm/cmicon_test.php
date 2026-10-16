@@ -81,7 +81,7 @@ final class cmicon_test extends \advanced_testcase {
      * Test the container and the label while the user is editing.
      */
     public function test_export_for_template_editing(): void {
-        global $PAGE, $USER;
+        global $USER;
         $this->resetAfterTest();
         $this->setAdminUser();
         $USER->editing = true;
@@ -139,36 +139,97 @@ final class cmicon_test extends \advanced_testcase {
     }
 
     /**
-     * Test the design system icon of the file activity.
+     * Test the file activity icon follows the file type, whether or not slash arguments are used in the icon url.
      *
-     * @param string $path the path of the icon url
-     * @param string $expected the expected design system icon
+     * @param bool $slasharguments whether slash arguments are enabled
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('file_icon_provider')]
-    public function test_get_design_system_icon_resource(string $path, string $expected): void {
+    #[\PHPUnit\Framework\Attributes\DataProvider('slasharguments_provider')]
+    public function test_export_for_template_resource_file_type(bool $slasharguments): void {
+        global $CFG, $USER;
         $this->resetAfterTest();
         $this->setAdminUser();
+        $CFG->slasharguments = $slasharguments;
 
-        $course = $this->getDataGenerator()->create_course();
-        $activity = $this->getDataGenerator()->create_module('resource', ['course' => $course->id]);
-        $cm = get_fast_modinfo($course)->get_cm($activity->cmid);
+        $draftid = file_get_unused_draft_itemid();
+        get_file_storage()->create_file_from_string([
+            'contextid' => \context_user::instance($USER->id)->id,
+            'component' => 'user',
+            'filearea' => 'draft',
+            'itemid' => $draftid,
+            'filepath' => '/',
+            'filename' => 'syllabus.pdf',
+        ], 'content');
 
-        $icon = new cmicon(course_format::instance($course), $cm);
-        $method = new \ReflectionMethod($icon, 'get_design_system_icon');
-        $this->assertEquals($expected, $method->invoke($icon, new \moodle_url($path)));
+        $data = $this->export_icon('resource', ['files' => $draftid]);
+
+        $props = json_decode($data['reactprops'], true);
+        $this->assertEquals('file-pdf', $props['icon']);
     }
 
     /**
-     * Data provider for test_get_design_system_icon_resource.
+     * Data provider for test_export_for_template_resource_file_type.
      *
      * @return array
      */
-    public static function file_icon_provider(): array {
+    public static function slasharguments_provider(): array {
         return [
-            'pdf' => ['/theme/image.php/boost/core/1/f/pdf', 'file-pdf'],
-            'known type with a query string' => ['/theme/image.php/boost/core/1/f/video?filtericon=1', 'file-video'],
-            'unknown type' => ['/theme/image.php/boost/core/1/f/notatype', 'file'],
-            'no type' => ['/theme/image.php/boost/resource/1/monologo', 'file'],
+            'slash arguments' => [true],
+            'no slash arguments' => [false],
         ];
+    }
+
+    /**
+     * Test a URL to a file uses the icon of the file type, and other URLs the URL activity icon.
+     */
+    public function test_export_for_template_url(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $data = $this->export_icon('url', ['externalurl' => 'https://example.com/docs/guide.pdf']);
+        $this->assertEquals('file-pdf', json_decode($data['reactprops'], true)['icon']);
+
+        $data = $this->export_icon('url', ['externalurl' => 'https://example.com/docs/']);
+        $this->assertEquals('url', json_decode($data['reactprops'], true)['icon']);
+    }
+
+    /**
+     * Test the file type icon is used by any activity that sets one, unless the icon belongs to its own component.
+     */
+    public function test_get_design_system_icon_file_type_icon(): void {
+        $this->resetAfterTest();
+        $url = new \moodle_url('/theme/image.php/boost/core/1/f/pdf');
+
+        $cases = [
+            'core icon' => ['', 'file-pdf'],
+            'icon of the activity component' => ['mod_thirdparty', null],
+        ];
+        foreach ($cases as $description => [$iconcomponent, $expected]) {
+            $cm = $this->createMock(\cm_info::class);
+            $cm->method('__get')->willReturnMap([
+                ['modname', 'thirdparty'],
+                ['icon', 'f/pdf'],
+                ['iconcomponent', $iconcomponent],
+            ]);
+            $course = $this->getDataGenerator()->create_course();
+
+            $icon = new cmicon(course_format::instance($course), $cm);
+            $method = new \ReflectionMethod($icon, 'get_design_system_icon');
+            $this->assertSame($expected, $method->invoke($icon, $url), $description);
+        }
+    }
+
+    /**
+     * Test an external tool keeps the icon provided by the tool.
+     */
+    public function test_export_for_template_lti(): void {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $data = $this->export_icon('lti', ['toolurl' => 'https://example.com/tool']);
+        $this->assertEquals('external-tool', json_decode($data['reactprops'], true)['icon']);
+
+        $data = $this->export_icon('lti', ['toolurl' => 'https://example.com/tool', 'icon' => 'https://example.com/icon.png']);
+        $this->assertArrayNotHasKey('reactprops', $data);
+        $this->assertEquals('https://example.com/icon.png', $data['icon']->out(false));
     }
 }

@@ -173,11 +173,21 @@ class cmicon implements named_templatable, renderable {
      * @return string|null the design system icon name, or null when the design system has no icon for the activity
      */
     protected function get_design_system_icon(\moodle_url $iconurl): ?string {
+        global $CFG;
+
+        // Keep the icon when the activity provides its own, for example the icon of a LTI tool.
+        if (!str_starts_with($iconurl->out_omit_querystring(), $CFG->wwwroot . '/theme/image.php')) {
+            return null;
+        }
+
+        // The icon of a file, or of a URL to a file, depends on its type: "f/<type>". An activity that sets a
+        // component for its icon refers to an image of its own, not to the core file type icons.
+        $iscoreicon = (string) $this->mod->iconcomponent === '';
+        if ($iscoreicon && preg_match('~^f/([a-z0-9_-]+)$~i', (string) $this->mod->icon, $matches)) {
+            return static::DS_FILE_ICONS[strtolower($matches[1])] ?? 'file';
+        }
         if ($this->mod->modname === 'resource') {
-            // The icon of a file depends on its type, which is the "f/<type>" part of the icon path.
-            $path = $iconurl->get_path();
-            $filetype = preg_match('~/f/([a-z0-9_-]+)$~i', $path, $matches) ? strtolower($matches[1]) : '';
-            return static::DS_FILE_ICONS[$filetype] ?? 'file';
+            return 'file';
         }
         return static::DS_ICONS[$this->mod->modname] ?? null;
     }
