@@ -45286,6 +45286,11 @@ body.tox-fullscreen .tox.tox-tinymce-aux {
   }
 }
 @media (min-width: 992px) {
+  #page.drawers.show-drawer-right:not(:has(.drawer-left-toggle)) {
+    padding-left: 0;
+  }
+}
+@media (min-width: 992px) {
   #page.drawers.show-drawer-left.show-drawer-right {
     margin-left: 285px;
     margin-right: 315px;

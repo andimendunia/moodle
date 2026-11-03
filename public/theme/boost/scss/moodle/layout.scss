@@ -206,6 +206,11 @@
             padding-right: 0;
         }
 
+        // Without a left drawer there is no left toggle to leave room for either.
+        &.show-drawer-right:not(:has(.drawer-left-toggle)) {
+            padding-left: 0;
+        }
+
         &.show-drawer-left.show-drawer-right {
             margin-left: $drawer-left-width;
             margin-right: $drawer-right-width;
