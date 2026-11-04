@@ -25,24 +25,43 @@ $drawer-anchored-top-offset: calc(#{$navbar-height} + #{$drawer-anchored-top-gap
 $drawer-anchored-vertical-offset: calc(#{$drawer-anchored-top-offset} + #{$drawer-anchored-bottom-gap});
 $drawer-anchored-toggler-top: calc(#{$navbar-height} + #{$drawer-anchored-top-gap});
 $drawer-anchor-none: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-main-gap});
-$drawer-anchor-left-open: calc(100% - #{$drawer-left-width});
-$drawer-right-anchor-left-open: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-main-gap} + #{$drawer-left-width} / 2);
-$drawer-anchor-right-open: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-main-gap} + #{$drawer-right-width} / 2);
-$drawer-right-anchor-right-open: calc(100% - #{$drawer-right-width});
-// lg+: both drawers open — anchor formula clamped so drawers don't clip the viewport.
-// Min() picks the smaller: anchor (gap from main) OR flush to viewport edge.
-$drawer-both-offset:      calc((#{$drawer-right-width} - #{$drawer-left-width}) / 2);
-$drawer-both-left-anchor: calc(50% + #{$course-content-maxwidth} / 2 + #{$drawer-both-offset} + #{$drawer-main-gap});
-$drawer-both-right-anchor: calc(50% + #{$course-content-maxwidth} / 2 - #{$drawer-both-offset} + #{$drawer-main-gap});
-$drawer-anchor-both-left: Min(#{$drawer-both-left-anchor}, calc(100% - #{$drawer-left-width}));
-$drawer-anchor-both-right: Min(#{$drawer-both-right-anchor}, calc(100% - #{$drawer-right-width}));
-// xxl: single drawer open — drawer anchored to main-inner edge, accounting for one margin.
-$drawer-anchor-xxl-left-open: calc(50% + #{$course-content-maxwidth} / 2 - #{$drawer-left-width} / 2 + #{$drawer-main-gap});
-$drawer-anchor-xxl-right-open: calc(50% + #{$course-content-maxwidth} / 2 - #{$drawer-right-width} / 2 + #{$drawer-main-gap});
-// lg+: single drawer open, clamped so the drawer doesn't clip the viewport at narrower lg widths.
-// Min() picks the smaller: anchor (gap from main) OR flush to viewport edge.
-$drawer-anchor-solo-left-open: Min(#{$drawer-anchor-xxl-left-open}, #{$drawer-anchor-left-open});
-$drawer-anchor-solo-right-open: Min(#{$drawer-anchor-xxl-right-open}, #{$drawer-right-anchor-right-open});
+// lg+: the page reserves room for each open drawer (layout.scss) and the drawers are anchored from that same
+// reserve, so the screen-edge gap, the drawer-to-content gap and the content width cannot drift apart.
+$drawer-edge-gap: var(--mds-spacing-lg, 1.25rem) !default;
+$drawer-content-gap: 20px !default;
+// The course content sits inside the padding of .main-inner (0.5rem) and of the main region (15px).
+// A page with different padding sets --drawer-content-inset on the body (see .single-section-page).
+$course-content-inset: calc(0.5rem + 15px) !default;
+$drawer-content-inset: var(--drawer-content-inset, #{$course-content-inset});
+// Drawer to .main-inner edge. Negative, as the course content is inset from .main-inner.
+$drawer-main-offset: calc(#{$drawer-content-gap} - #{$drawer-content-inset});
+// A drawer toggle button is inset by this margin from its wrapper.
+$drawer-toggler-margin: 16px !default;
+$drawer-left-reserve: calc(#{$drawer-left-width} + #{$drawer-edge-gap} + #{$drawer-main-offset});
+$drawer-right-reserve: calc(#{$drawer-right-width} + #{$drawer-edge-gap} + #{$drawer-main-offset});
+// Room beside a closed drawer for its toggle button, with the same gaps as an open drawer.
+$drawer-toggle-reserve: calc(#{$drawer-edge-gap} + #{$icon-medium-width} + #{$drawer-content-gap} - #{$drawer-content-inset});
+// Closed toggle button position that keeps the screen-edge gap, for when there is no room to anchor to .main-inner.
+$drawer-toggle-edge-anchor: calc(100% - #{$icon-medium-width} - #{$drawer-edge-gap} - #{$drawer-toggler-margin});
+
+// Position of the left drawer (as `right`), or of its toggle when $shift is set, for the given reserves.
+// Min() picks the smaller: beside .main-inner when there is room, else the drawer keeps its screen-edge gap.
+@function drawer-left-anchor($reserve-left, $reserve-right, $shift: null) {
+    $tail: if($shift, " - #{$shift}", "");
+    $edge: "calc(100% - #{$reserve-left} + #{$drawer-main-offset}#{$tail})";
+    $centred: "calc(50% + #{$course-content-maxwidth} / 2 + "
+        + "(#{$reserve-right} - #{$reserve-left}) / 2 + #{$drawer-main-offset}#{$tail})";
+    @return unquote("Min(#{$edge}, #{$centred})");
+}
+
+// Position of the right drawer (as `left`), or of its toggle when $shift is set, for the given reserves.
+@function drawer-right-anchor($reserve-left, $reserve-right, $shift: null) {
+    $tail: if($shift, " - #{$shift}", "");
+    $edge: "calc(100% - #{$reserve-right} + #{$drawer-main-offset}#{$tail})";
+    $centred: "calc(50% + #{$course-content-maxwidth} / 2 + "
+        + "(#{$reserve-left} - #{$reserve-right}) / 2 + #{$drawer-main-offset}#{$tail})";
+    @return unquote("Min(#{$edge}, #{$centred})");
+}
 
 :target,
 :focus {
@@ -387,55 +406,66 @@ $right-drawer-width: 320px;
             }
         }
 
+        // Course index only: the block drawer side keeps room for its toggle button.
         &:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) {
+            $anchor-left: drawer-left-anchor($drawer-left-reserve, $drawer-toggle-reserve);
+            $anchor-right: drawer-right-anchor($drawer-left-reserve, $drawer-toggle-reserve);
+
             .drawer.drawer-left {
-                right: $drawer-anchor-solo-left-open;
+                right: $anchor-left;
 
                 &.show {
-                    right: $drawer-anchor-solo-left-open;
+                    right: $anchor-left;
                 }
             }
             .drawer.drawer-right {
-                left: $drawer-right-anchor-left-open;
+                left: $anchor-right;
 
                 &.show {
-                    left: $drawer-right-anchor-left-open;
+                    left: $anchor-right;
                 }
             }
         }
 
+        // Block drawer only: the course index side keeps room for its toggle button.
         &:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) {
+            $anchor-left: drawer-left-anchor($drawer-toggle-reserve, $drawer-right-reserve);
+            $anchor-right: drawer-right-anchor($drawer-toggle-reserve, $drawer-right-reserve);
+
             .drawer.drawer-left {
-                right: $drawer-anchor-right-open;
+                right: $anchor-left;
 
                 &.show {
-                    right: $drawer-anchor-right-open;
+                    right: $anchor-left;
                 }
             }
             .drawer.drawer-right {
-                left: $drawer-anchor-solo-right-open;
+                left: $anchor-right;
 
                 &.show {
-                    left: $drawer-anchor-solo-right-open;
+                    left: $anchor-right;
                 }
             }
         }
 
-        // Both drawers open: anchor to main-inner edges, clamped so drawers don't clip the viewport.
+        // Both drawers open: anchor to main-inner edges, keeping the screen-edge gap when there is no room.
         &:has(#page.drawers.show-drawer-left.show-drawer-right) {
+            $anchor-left: drawer-left-anchor($drawer-left-reserve, $drawer-right-reserve);
+            $anchor-right: drawer-right-anchor($drawer-left-reserve, $drawer-right-reserve);
+
             .drawer.drawer-left {
-                right: $drawer-anchor-both-left;
+                right: $anchor-left;
 
                 &.show {
-                    right: $drawer-anchor-both-left;
+                    right: $anchor-left;
                 }
             }
 
             .drawer.drawer-right {
-                left: $drawer-anchor-both-right;
+                left: $anchor-right;
 
                 &.show {
-                    left: $drawer-anchor-both-right;
+                    left: $anchor-right;
                 }
             }
         }

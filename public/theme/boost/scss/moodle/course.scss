@@ -825,6 +825,9 @@ button.section-collapsemenu {
 }
 
 .single-section-page {
+    // The content is inset by this padding only, which the drawer gaps need to know (see drawer.scss).
+    --drawer-content-inset: #{$mds-spacing-md};
+
     #page.drawers #topofscroll {
         padding: $mds-spacing-md;
     }

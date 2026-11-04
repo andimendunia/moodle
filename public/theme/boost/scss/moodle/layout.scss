@@ -88,7 +88,7 @@
         top: calc(#{$navbar-height} + 1rem);
         z-index: 2;
         .btn {
-            margin: auto 16px;
+            margin: auto $drawer-toggler-margin;
             background-color: var(--#{$prefix}gray-200);
             width: $icon-medium-width;
             height: $icon-medium-width; // Using the same value for width and height to make the button square.
@@ -232,12 +232,28 @@
     }
 
     // Toggle buttons anchored to the main region edges, matching the drawer anchor formulas.
-    // Min() falls back to the viewport edge when there isn't enough room to anchor to main-inner.
     .pagelayout-standard,
     body.limitedwidth {
         // Lines up the top of the rounded content card with the anchored side drawers.
         #page.drawers .main-inner {
             margin-top: calc(#{$drawer-anchored-top-offset} - #{$navbar-height});
+        }
+
+        // Room for each open drawer and its gaps, which the drawers are anchored from (see drawer.scss).
+        // A closed drawer side keeps room for its toggle button.
+        #page.drawers {
+            padding-left: $drawer-toggle-reserve;
+            padding-right: $drawer-toggle-reserve;
+
+            &.show-drawer-left {
+                margin-left: $drawer-left-reserve;
+                padding-left: 0;
+            }
+
+            &.show-drawer-right {
+                margin-right: $drawer-right-reserve;
+                padding-right: 0;
+            }
         }
 
         .drawer-toggles {
@@ -246,50 +262,31 @@
                 top: $drawer-anchored-toggler-top;
             }
 
+            // Min() keeps the toggle button the screen-edge gap away when there isn't enough room to anchor to main-inner.
             .drawer-left-toggle {
                 left: auto;
-                right: Min(#{$drawer-anchor-none}, calc(100% - #{$icon-medium-width} - 2 * 16px));
+                right: Min(#{$drawer-anchor-none}, #{$drawer-toggle-edge-anchor});
                 @include transition(right 0.2s ease);
             }
 
             .drawer-right-toggle {
                 right: auto;
-                left: Min(#{$drawer-anchor-none}, calc(100% - #{$icon-medium-width} - 2 * 16px));
+                left: Min(#{$drawer-anchor-none}, #{$drawer-toggle-edge-anchor});
                 @include transition(left 0.2s ease);
             }
         }
 
-        // Single right drawer open: both toggles shift to track the moved main-inner.
+        // The toggle of an open drawer is hidden, so only the toggle of the closed drawer needs to track the content.
+        // It takes the place of the closed drawer, with the same gaps.
         &:has(#page.drawers.show-drawer-right):not(:has(#page.drawers.show-drawer-left)) {
             .drawer-toggles .drawer-left-toggle {
-                right: Min(#{$drawer-anchor-right-open}, calc(100% - #{$icon-medium-width} - 2 * 16px));
-            }
-
-            .drawer-toggles .drawer-right-toggle {
-                left: Min(#{$drawer-anchor-xxl-right-open}, calc(100% - #{$icon-medium-width} - 2 * 16px));
+                right: drawer-left-anchor($drawer-toggle-reserve, $drawer-right-reserve, $drawer-toggler-margin);
             }
         }
 
-        // Single left drawer open: both toggles shift to track the moved main-inner.
         &:has(#page.drawers.show-drawer-left):not(:has(#page.drawers.show-drawer-right)) {
-            .drawer-toggles .drawer-left-toggle {
-                right: Min(#{$drawer-anchor-xxl-left-open}, calc(100% - #{$icon-medium-width} - 2 * 16px));
-            }
-
             .drawer-toggles .drawer-right-toggle {
-                left: Min(#{$drawer-right-anchor-left-open}, calc(100% - #{$icon-medium-width} - 2 * 16px));
-            }
-        }
-
-        // Both drawers open: toggles hidden (handled by show-drawer-* display:none rules).
-        // Included for completeness — tracks same offset as drawer-both formulas.
-        &:has(#page.drawers.show-drawer-left.show-drawer-right) {
-            .drawer-toggles .drawer-left-toggle {
-                right: $drawer-both-left-anchor;
-            }
-
-            .drawer-toggles .drawer-right-toggle {
-                left: $drawer-both-right-anchor;
+                left: drawer-right-anchor($drawer-left-reserve, $drawer-toggle-reserve, $drawer-toggler-margin);
             }
         }
     }
