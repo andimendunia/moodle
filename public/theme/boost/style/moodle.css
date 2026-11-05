@@ -47057,7 +47057,6 @@ div.editor_atto_toolbar button .icon {
 .secondary-navigation .navigation {
   border-bottom: 1px solid var(--bs-border-color);
   background-color: var(--bs-body-bg);
-  padding: 0 0.5rem;
 }
 .secondary-navigation .navigation .nav-tabs {
   border: none;
@@ -47070,7 +47069,7 @@ div.editor_atto_toolbar button .icon {
 
 @media (min-width: 768px) {
   .secondary-navigation .navigation {
-    padding: 0 calc(0.5rem + 15px);
+    padding: 0 15px;
   }
 }
 .secondary-navigation .navigation.secondarynav-tabbar {
